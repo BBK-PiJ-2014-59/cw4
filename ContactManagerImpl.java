@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ContactManagerImpl implements ContactManager { 
 
@@ -57,7 +58,16 @@ public class ContactManagerImpl implements ContactManager {
 
   public Set<Contact> getContacts(String name) {
     //return null;
-    return contacts;
+    //return contacts;
+    Set<Contact> result = new HashSet<Contact>();
+    Iterator<Contact> i = contacts.iterator();
+    Contact c = null;
+    while (i.hasNext()) { 
+      c = i.next();
+      if (c.getName().contains(name)) 
+        result.add(c);
+    }
+    return result;
 	}
 
   public void flush() {
