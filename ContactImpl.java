@@ -1,12 +1,17 @@
 public class ContactImpl implements Contact { 
-  private final int id;
-  static int nextId = 100;
+  private final int id; // uniqueness to be managed by ContactManager
+  //static int nextId = 100;
   private final String name;
-  private String note;
+  private String notes;
 
-  public ContactImpl(String name) { 
+  public ContactImpl(String name, String notes, int id) {  
+    if ((name == null) || (notes == null)) { 
+      throw new NullPointerException("Neither contact name nor notes can be null.");
+    }
+    this.notes = notes;
     this.name = name;
-    id = nextId++; 
+    //id = nextId++; 
+    this.id = id; 
   }
 
   public int getId() { 
@@ -18,11 +23,11 @@ public class ContactImpl implements Contact {
   }
 
   public String getNotes() { 
-    return note;
+    return notes;
   }
 
-  public void addNotes(String note) { 
-    this.note = note;
+  public void addNotes(String notes) { 
+    this.notes = notes;
   }
 
 }

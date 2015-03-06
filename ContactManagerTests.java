@@ -17,15 +17,18 @@ public class ContactManagerTests {
 
   @Before 
   public void buildUp() {
-    myContact1 = new ContactImpl(name);
-    myContact2 = new ContactImpl(name);
     notes = "notes";
+    myContact1 = new ContactImpl(name, notes, 100);
+    int id1 = myContact1.getId();
+    System.out.println("id1: " + id1);
+    myContact2 = new ContactImpl(name, notes, 101);
     myCm = new ContactManagerImpl();
   }
 
   // Contact tests
 
-  @Test
+  // BAD TEST: Since moving control of contact ID uniqueness inside ContactManagerImpl, so then hardcoding id values into myContact1 and myContact2, TEST 1 now tests nothing!
+  @Test 
   public void contact_GetId_ReturnsUniqueIDs() {
     System.out.println("TEST 1");
     assertTrue(myContact1.getId() != myContact2.getId());

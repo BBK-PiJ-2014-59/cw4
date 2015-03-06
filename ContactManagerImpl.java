@@ -1,8 +1,16 @@
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 public class ContactManagerImpl implements ContactManager { 
+
+  private static final int FIRSTCONTACTID = 100;
+  private int nextContactId = FIRSTCONTACTID;
+
+  //private List<Contact> contacts = new ArrayList<Contact>();
+  private Set<Contact> contacts = new HashSet<Contact>();
 
   public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
     return 0;
@@ -39,6 +47,8 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public void addNewContact(String name, String notes) {
+    System.out.println("yoda");
+    contacts.add(new ContactImpl(name, notes, nextContactId++));
 	}
 
   public Set<Contact> getContacts(int... ids) {
@@ -46,7 +56,8 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public Set<Contact> getContacts(String name) {
-    return null;
+    //return null;
+    return contacts;
 	}
 
   public void flush() {
