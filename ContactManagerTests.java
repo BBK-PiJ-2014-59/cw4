@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.io.ByteArrayInputStream;
 
 public class ContactManagerTests { 
 
@@ -157,19 +158,45 @@ public class ContactManagerTests {
   @Test (expected=NullPointerException.class) 
   public void ui_nullPromptToPrompt() {
     System.out.println("TEST 10");
-    myCmui.prompt(null);
+    myCmui.promptString(null);
   }
 
   @Test 
-  public void ui_promptStripsWhitespace() {
+  public void ui_promptStringStripsWhitespace() {
     System.out.println("TEST 11");
     String stripped = "abc def";
     String tooSpacey = "   abc     def        ";
     ByteArrayInputStream in = new ByteArrayInputStream(tooSpacey.getBytes());
     System.setIn(in);
-    String out = myCmui.prompt("prompt");
-    assertEquals(stripped,out);
+    String out = myCmui.promptString("prompt");
     System.setIn(System.in);
+    assertEquals(stripped,out);
   }
 
+  @Test (expected=NullPointerException.class) 
+  public void ui_nullPromptToPromptInt() {
+    System.out.println("TEST 12");
+    myCmui.promptInt(null);
+  }
+
+  @Test 
+  public void ui_promptIntReturnsInt() {
+    System.out.println("TEST 13");
+    String fiftySix = "56";
+    int myInt = 56;
+    ByteArrayInputStream in = new ByteArrayInputStream(fiftySix.getBytes());
+    System.setIn(in);
+    int out = myCmui.promptInt("prompt");
+    System.setIn(System.in);
+    assertEquals(myInt,out);
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void ui_nonIntTopromptInt() {
+    System.out.println("TEST 14");
+    ByteArrayInputStream in = new ByteArrayInputStream("nonInt".getBytes());
+    System.setIn(in);
+    int out = myCmui.promptInt("prompt");
+    System.setIn(System.in);
+  }
 }
