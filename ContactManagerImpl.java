@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.File;
 import com.google.gson.Gson;
 
 public class ContactManagerImpl implements ContactManager { 
@@ -30,6 +31,7 @@ public class ContactManagerImpl implements ContactManager {
     try {
       BufferedReader br = new BufferedReader(
       new FileReader(filename));
+      //result = gson.fromJson(br, HashSet.class);
       result = gson.fromJson(br, HashSet.class);
       //System.out.println("FUNKAYYYY" + result);
     } catch (IOException e) {
@@ -73,7 +75,6 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public void addNewContact(String name, String notes) {
-    System.out.println("yoda");
     contacts.add(new ContactImpl(name, notes, nextContactId++));
 	}
 
@@ -107,4 +108,5 @@ public class ContactManagerImpl implements ContactManager {
     }
     System.out.println(json);
 	}
+
 }

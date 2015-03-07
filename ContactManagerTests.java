@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Arrays;
 
-
 public class ContactManagerTests { 
 
   private final String textfile = "contacts.txt";
@@ -18,6 +17,7 @@ public class ContactManagerTests {
   private Contact myContact1;
   private Contact myContact2;
   private ContactManager myCm;
+  private ContactManagerUI myCmui;
 
   @Before 
   public void buildUp() {
@@ -27,6 +27,7 @@ public class ContactManagerTests {
     System.out.println("id1: " + id1);
     myContact2 = new ContactImpl(name2, notes, 101);
     myCm = new ContactManagerImpl();
+    myCmui = new ContactManagerUIImpl();
   }
 
   // Contact tests
@@ -140,4 +141,35 @@ public class ContactManagerTests {
     assertTrue(namesAfter.equals(namesBefore)); 
     assertTrue(idsAfter.equals(idsBefore)); 
   }
+
+  @Test (expected=NullPointerException.class) 
+  public void ui_nullTextfileToLaunch() {
+    System.out.println("TEST 8");
+    myCmui.launch(null);
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void ui_nullContactManagerToDisplay() {
+    System.out.println("TEST 9");
+    myCmui.display(null);
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void ui_nullPromptToPrompt() {
+    System.out.println("TEST 10");
+    myCmui.prompt(null);
+  }
+
+  @Test 
+  public void ui_promptStripsWhitespace() {
+    System.out.println("TEST 11");
+    String stripped = "abc def";
+    String tooSpacey = "   abc     def        ";
+    ByteArrayInputStream in = new ByteArrayInputStream(tooSpacey.getBytes());
+    System.setIn(in);
+    String out = myCmui.prompt("prompt");
+    assertEquals(stripped,out);
+    System.setIn(System.in);
+  }
+
 }

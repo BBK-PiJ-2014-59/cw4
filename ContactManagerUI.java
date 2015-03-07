@@ -8,7 +8,6 @@ public interface ContactManagerUI {
    * @param textfile filename for persistent storage of contacts and meetings 
    * @returns contact manager object
    * @throws NullPointerException if textfile is null.
-   * @throws IOException if file referred to by textfile is unreadable or unwritable.
    * @throws IllegalArgumentException if textfile isn't a String or file referred to by it isn't in JSON (GSON) format.
    */
   ContactManager launch(String textfile);
@@ -19,4 +18,14 @@ public interface ContactManagerUI {
    * @throws IllegalArgumentException if cm is not a ContactManager object.
    */
   void display(ContactManager cm);
+  /**
+   * Prompts user for a String at console and returns user's response stripped of unnecessary whitespace.
+   * 
+   * @param prompt user prompt.   
+   * @throws NullPointerException if prompt is null.
+   * @return user's response trimmed of leading and trailing whitespace; any tabs or
+   * multiple spaces inside the string are also replaced by a single space.
+   */
+  String prompt(String prompt);
+
 }
