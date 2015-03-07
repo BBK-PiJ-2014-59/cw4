@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 public class ContactManagerTests { 
 
+  private final String textfile = "contacts.txt";
   private final int firstContactId = 100;
 
   private final String name1 = "name1";
@@ -124,15 +125,17 @@ public class ContactManagerTests {
     Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2,name3));
     Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1,firstContactId+2));
     myCm.flush();
-    ContactManager myCm2 = new ContactManagerImpl();
+    ContactManager myCm2 = new ContactManagerImpl(textfile);
     // check names, notes, IDs
     Set<Contact> s = myCm.getContacts("");   
     Iterator<Contact> i = s.iterator();
     Set<String> namesAfter = new HashSet<String>();
     Set<Integer> idsAfter = new HashSet<Integer>();
+    Contact c = null;
     while (i.hasNext()) { 
-      namesAfter.add(i.next().getName()); 
-      idsAfter.add(i.next().getId()); 
+      c = i.next();
+      namesAfter.add(c.getName()); 
+      idsAfter.add(c.getId()); 
     }
     assertTrue(namesAfter.equals(namesBefore)); 
     assertTrue(idsAfter.equals(idsBefore)); 
