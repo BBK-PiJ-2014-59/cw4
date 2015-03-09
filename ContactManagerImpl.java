@@ -13,30 +13,41 @@ import com.google.gson.Gson;
 
 public class ContactManagerImpl implements ContactManager { 
 
-  private static final String textfile = "contacts.txt";
+  //private static final String textfile = "contacts.txt";
+  private String textfile = "contacts.txt";
   private static final int FIRSTCONTACTID = 100;
   private int nextContactId = FIRSTCONTACTID;
-  private Set<Contact> contacts = new HashSet<Contact>();
-  //private List<Contact> contacts = new ArrayList<Contact>();
+  //private Set<Contact> contacts = new HashSet<Contact>();
+  private Set<Contact> contacts;
 
-  public ContactManagerImpl() {}
+  public ContactManagerImpl() {
+    //Set<Contact> contacts = new HashSet<Contact>();
+    contacts = new HashSet<Contact>();
+    Set<Contact> fileContacts = readInTextfile(textfile);
+    if (fileContacts != null)
+      contacts.addAll(fileContacts);
+  }
 
-  public ContactManagerImpl(String textfile) {
-    contacts = readInTextfile(textfile);
+  public ContactManagerImpl(String filename) {
+    textfile = filename;
+    contacts = new HashSet<Contact>();
+    Set<Contact> fileContacts = readInTextfile(textfile);
+    if (fileContacts != null)
+      contacts.addAll(fileContacts);
   }
 
   private Set<Contact> readInTextfile(String filename) { 
     Gson gson = new Gson();
-    Set<Contact> result = null;
-    try {
-      BufferedReader br = new BufferedReader(
-      new FileReader(filename));
-      //result = gson.fromJson(br, HashSet.class);
-      result = gson.fromJson(br, HashSet.class);
-      //System.out.println("FUNKAYYYY" + result);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } 
+    Set<Contact> result = new HashSet<Contact>();;
+    if (new File(filename).exists()) { 
+      try {
+        BufferedReader br = new BufferedReader(
+        new FileReader(filename));
+        result.addAll(gson.fromJson(br, HashSet.class));
+      } catch (IOException e) {
+        e.printStackTrace();
+      } 
+    }
     return result;
   }
 
@@ -98,15 +109,15 @@ public class ContactManagerImpl implements ContactManager {
 
   public void flush() {
     Gson gson = new Gson();
-    String json = gson.toJson(contacts);
+    String jsonContacts = gson.toJson(contacts);
     try {
       FileWriter writer = new FileWriter("contacts.txt");
-      writer.write(json);
+      writer.write(jsonContacts);
       writer.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    System.out.println(json);
+    System.out.println(jsonContacts);
 	}
 
 }

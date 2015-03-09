@@ -6,12 +6,9 @@ public interface ContactManagerUI {
   /**
    * Starts user interface by creating a ContactManager object (based on a textfile if one is available). 
    * 
-   * @param textfile filename for persistent storage of contacts and meetings 
    * @returns contact manager object
-   * @throws NullPointerException if textfile is null.
-   * @throws IllegalArgumentException if textfile isn't a String or file referred to by it isn't in JSON (GSON) format.
    */
-  ContactManager launch(String textfile);
+  ContactManager launch();
 
   /**
    * Lets user manage meetings and contacts by manipulating ContactManager object.
@@ -32,12 +29,11 @@ public interface ContactManagerUI {
   String promptString(String prompt);
 
   /**
-   * Prompts user for an int at console and returns user's response.
+   * Prompts user for an int at console and returns response.
    * 
    * @param prompt user prompt.   
    * @throws NullPointerException if prompt is null.
-   * @throws IllegalArgumentException if response is not an int.
-   * @return user's response.
+   * @return user's response, or -1 if response is not an int.
    */
   int promptInt(String prompt);
 

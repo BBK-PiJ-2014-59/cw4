@@ -3,42 +3,50 @@ import java.io.File;
 
 public class ContactManagerUIImpl implements ContactManagerUI { 
 
-  private static final String textfile = "contacts.txt";
+  private String textfile = "contacts.txt";
+
+  public ContactManagerUIImpl() {}
+
+  public ContactManagerUIImpl(String testfile) { 
+    textfile = testfile;
+  }
 
   public void display(ContactManager cm) { 
     if (cm == null) throw new NullPointerException();
     String mainMenuPrompt = "Select an option: \n" +
                             "  1) Add contact\n" +
-                            "  2) Exit\n ";
-    int selection = 1;
-    //input.nextLine();
+                            "  2) Exit";
+    int selection = promptInt(mainMenuPrompt);
     switch (selection) {
     case 1:
       // Add contact 
       String namePrompt = "Enter contact's name (required):"; 
       String name = promptString(namePrompt);
       String notesPrompt = "Enter notes about contact (optional):"; 
+      String notes = promptString(notesPrompt);
+      cm.addNewContact(name, notes);
       break;
     case 2:
       // Exit
-      break;
+      System.out.println("Saving and exiting Contact Manager.");
+      cm.flush();
+      System.exit(0);
     default:
-      System.out.println("Invalid selection.");
+      System.out.println("\n!!! Invalid selection !!!");
       break;
     }
   }
 
-
-  public ContactManager launch(String textfile) { 
+  public ContactManager launch() { 
     if (textfile == null)
       throw new NullPointerException();
     ContactManager result;
-    File f = new File(textfile);
-    if(f.exists() && !f.isDirectory()) {
+    //File f = new File(textfile);
+    //if (f.exists() && !f.isDirectory()) {
       result = new ContactManagerImpl(textfile);
-    } else {
-      result = new ContactManagerImpl();
-    }
+    //} else {
+     // result = new ContactManagerImpl();
+    //}
     return result;
   }
 
@@ -53,12 +61,24 @@ public class ContactManagerUIImpl implements ContactManagerUI {
   }
 
   public int promptInt(String prompt) { 
-    return 0;
+    if (prompt == null)
+      throw new NullPointerException();
+    System.out.print( "\n" +
+                      prompt + 
+                      "\n> ");
+    Scanner input = new Scanner(System.in);
+    int result;
+    try { 
+      result = input.nextInt();
+    } catch (Exception e) { 
+      result = -1; 
+    }
+    return result;
   }
 
   public static void main(String[] args) { 
     ContactManagerUI cmui = new ContactManagerUIImpl(); 
-    ContactManager cm = cmui.launch(textfile);
+    ContactManager cm = cmui.launch();
     while (true)
       cmui.display(cm);
   }

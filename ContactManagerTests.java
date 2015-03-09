@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Files;
+
+
 
 public class ContactManagerTests { 
 
@@ -20,12 +24,47 @@ public class ContactManagerTests {
   private ContactManager myCm;
   private ContactManagerUI myCmui;
 
+  private static void deleteFile(String filename) { 
+    try { 
+      File file = new File(filename); 
+      if (file.exists())
+        file.delete();
+    } catch (Exception e) { 
+      e.printStackTrace();
+    }
+  }
+
+  private static void renameFile(String oldName, String suffix) { 
+    String newName="" + oldName + "." + suffix;
+    File file1 = new File(oldName); 
+    File file2 = new File(newName); 
+    if (file1.exists())
+      file1.renameTo(file2);
+  }
+
+  private static void copyFile(String oldName, String suffix) { 
+    String newName="" + oldName + "." + suffix;
+    File file1 = new File(oldName); 
+    File file2 = new File(newName); 
+    if (file1.exists() && !file2.exists())
+      try { 
+        Files.copy(file1.toPath(),file2.toPath());
+      } catch (Exception e) { 
+        e.printStackTrace();
+      }
+  }
+
+  @BeforeClass
+  public static void foo() { 
+    ContactManagerTests.copyFile("foo.txt", "bar");
+  }
+
   @Before 
   public void buildUp() {
+    ContactManagerTests.deleteFile(textfile);
     notes = "notes";
     myContact1 = new ContactImpl(name1, notes, 100);
     int id1 = myContact1.getId();
-    System.out.println("id1: " + id1);
     myContact2 = new ContactImpl(name2, notes, 101);
     myCm = new ContactManagerImpl();
     myCmui = new ContactManagerUIImpl();
@@ -36,28 +75,30 @@ public class ContactManagerTests {
   // BAD TEST: Since moving control of contact ID uniqueness inside ContactManagerImpl, so then hardcoding id values into myContact1 and myContact2, TEST 1 now tests nothing!
   @Test 
   public void contact_GetId_ReturnsUniqueIDs() {
-    System.out.println("TEST 1");
+    String label = "TEST_1";
+		System.out.println(label);
     assertTrue(myContact1.getId() != myContact2.getId());
   }
 
   @Test
   public void contact_GetName_ReturnsName() {
-    System.out.println("TEST 2");
+    String label = "TEST_2";
+		System.out.println(label);
     assertEquals(name1, myContact1.getName());
   }
 
   @Test
   public void contact_GetNotes_ReturnsNotes() {
-    System.out.println("TEST 3");
+    String label = "TEST_3";
+		System.out.println(label);
     myContact1.addNotes(notes);
     assertEquals(notes, myContact1.getNotes());
   }
 
-  // ContactManager tests related to Contact
-
   @Test
   public void addOneContact_searchByName_foundContact() {
-    System.out.println("TEST 4");
+    String label = "TEST_4";
+		System.out.println(label);
     //ContactManager myCm = new ContactManagerImpl();
     myCm.addNewContact(name1, notes); 
     Set<Contact> s = myCm.getContacts(name1);   
@@ -71,7 +112,8 @@ public class ContactManagerTests {
   
   @Test
   public void addOneContact_searchByName_contactNotFound() {
-    System.out.println("TEST 4.1");
+    String label = "TEST_4.1";
+		System.out.println(label);
     myCm.addNewContact(name1, notes); 
     Set<Contact> s = myCm.getContacts(name2);   
     assertEquals(1, myCm.getContacts("").size()); 
@@ -80,7 +122,8 @@ public class ContactManagerTests {
 
   @Test
   public void addThreeContacts_searchByName_getTwoBack() {
-    System.out.println("TEST 4.2");
+    String label = "TEST_4.2";
+		System.out.println(label);
     myCm.addNewContact(name1, notes); 
     myCm.addNewContact(name2, notes); 
     myCm.addNewContact(name3, notes); 
@@ -99,7 +142,8 @@ public class ContactManagerTests {
 
   @Test
   public void addThreeContacts_searchByName_getAllBack() {
-    System.out.println("TEST 4.3");
+    String label = "TEST_4.3";
+		System.out.println(label);
     myCm.addNewContact(name1, notes); 
     myCm.addNewContact(name2, notes); 
     myCm.addNewContact(name3, notes); 
@@ -108,28 +152,36 @@ public class ContactManagerTests {
 
   @Test (expected=NullPointerException.class)
   public void addNewContact_nullName() {
-    System.out.println("TEST 5");
+    String label = "TEST_5";
+		System.out.println(label);
     myCm.addNewContact(null, notes); 
   }
 
   @Test (expected=NullPointerException.class)
   public void addNewContact_nullNotes() {
-    System.out.println("TEST 6");
+    String label = "TEST_6";
+		System.out.println(label);
     myCm.addNewContact(notes, null); 
   }
 
   @Test
   public void getSameContactsBackAfterFlush() {
-    System.out.println("TEST 7");
-    myCm.addNewContact(name1, notes); 
-    myCm.addNewContact(name2, notes); 
-    myCm.addNewContact(name3, notes); 
+    String label = "TEST_7";
+		System.out.println(label);
+    String testfile = "" + textfile + "." + label;
+    ContactManagerTests.deleteFile(testfile);
+    ContactManagerUI ui = new ContactManagerUIImpl(testfile);
+    ContactManager cm = ui.launch();
+    cm.addNewContact(name1, notes); 
+    cm.addNewContact(name2, notes); 
+    cm.addNewContact(name3, notes); 
     Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2,name3));
     Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1,firstContactId+2));
-    myCm.flush();
-    ContactManager myCm2 = new ContactManagerImpl(textfile);
+    ContactManagerTests.copyFile(testfile,"save");
+    cm.flush();
+    ContactManager cm2 = new ContactManagerImpl(testfile);
     // check names, notes, IDs
-    Set<Contact> s = myCm.getContacts("");   
+    Set<Contact> s = cm.getContacts("");   
     Iterator<Contact> i = s.iterator();
     Set<String> namesAfter = new HashSet<String>();
     Set<Integer> idsAfter = new HashSet<Integer>();
@@ -143,27 +195,63 @@ public class ContactManagerTests {
     assertTrue(idsAfter.equals(idsBefore)); 
   }
 
-  @Test (expected=NullPointerException.class) 
-  public void ui_nullTextfileToLaunch() {
-    System.out.println("TEST 8");
-    myCmui.launch(null);
+  @Test
+  public void flushAfterStartingWithMissingTestfileCreatesIt() { 
+    String label = "TEST_7.01";
+		System.out.println(label);
+    String testfile = "" + textfile + "." + label;
+    ContactManagerTests.deleteFile(testfile);
+    ContactManagerUI ui = new ContactManagerUIImpl(testfile);
+    ContactManager cm = ui.launch();
+    cm.flush();
+    assertTrue(new File(testfile).exists());
+  }
+
+  @Test
+  public void nextContactIdIsIncrementedIfAddedAfterFlush() {
+    String label = "TEST_7.1";
+		System.out.println(label);
+    String testfile = "" + textfile + "." + label;
+    ContactManagerTests.deleteFile(testfile);
+    ContactManagerUI ui = new ContactManagerUIImpl(testfile);
+    ContactManager cm = ui.launch();
+    cm.addNewContact(name1, notes); 
+    cm.addNewContact(name2, notes); 
+    Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2));
+    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1));
+    ContactManagerTests.copyFile(testfile,"save");
+    cm.flush();
+    ContactManager cm2 = new ContactManagerImpl(testfile);
+    // check names, notes, IDs
+    Set<Contact> s = cm.getContacts("");   
+    Iterator<Contact> i = s.iterator();
+    Set<Integer> idsAfter = new HashSet<Integer>();
+    Contact c = null;
+    while (i.hasNext()) { 
+      c = i.next();
+      idsAfter.add(c.getId()); 
+    }
+    assertTrue(idsAfter.equals(idsBefore)); 
   }
 
   @Test (expected=NullPointerException.class) 
   public void ui_nullContactManagerToDisplay() {
-    System.out.println("TEST 9");
+    String label = "TEST_9";
+		System.out.println(label);
     myCmui.display(null);
   }
 
   @Test (expected=NullPointerException.class) 
   public void ui_nullPromptToPrompt() {
-    System.out.println("TEST 10");
+    String label = "TEST_10";
+		System.out.println(label);
     myCmui.promptString(null);
   }
 
   @Test 
   public void ui_promptStringStripsWhitespace() {
-    System.out.println("TEST 11");
+    String label = "TEST_11";
+		System.out.println(label);
     String stripped = "abc def";
     String tooSpacey = "   abc     def        ";
     ByteArrayInputStream in = new ByteArrayInputStream(tooSpacey.getBytes());
@@ -175,13 +263,15 @@ public class ContactManagerTests {
 
   @Test (expected=NullPointerException.class) 
   public void ui_nullPromptToPromptInt() {
-    System.out.println("TEST 12");
+    String label = "TEST_12";
+		System.out.println(label);
     myCmui.promptInt(null);
   }
 
   @Test 
   public void ui_promptIntReturnsInt() {
-    System.out.println("TEST 13");
+    String label = "TEST_13";
+		System.out.println(label);
     String fiftySix = "56";
     int myInt = 56;
     ByteArrayInputStream in = new ByteArrayInputStream(fiftySix.getBytes());
@@ -191,12 +281,16 @@ public class ContactManagerTests {
     assertEquals(myInt,out);
   }
 
-  @Test (expected=IllegalArgumentException.class) 
-  public void ui_nonIntTopromptInt() {
-    System.out.println("TEST 14");
-    ByteArrayInputStream in = new ByteArrayInputStream("nonInt".getBytes());
+  @Test 
+  public void ui_InvalidResponseToPromptInt() {
+    String label = "TEST_15";
+		System.out.println(label);
+    String invalid = "invalid";
+    ByteArrayInputStream in = new ByteArrayInputStream(invalid.getBytes());
     System.setIn(in);
     int out = myCmui.promptInt("prompt");
     System.setIn(System.in);
+    assertEquals(-1,out);
   }
+
 }
