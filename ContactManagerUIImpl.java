@@ -9,6 +9,7 @@ public class ContactManagerUIImpl implements ContactManagerUI {
 
   public ContactManagerUIImpl(String testfile) { 
     textfile = testfile;
+    System.out.println("textfile: " + textfile);
   }
 
   public void display(ContactManager cm) { 

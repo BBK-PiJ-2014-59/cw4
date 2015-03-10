@@ -111,7 +111,8 @@ public class ContactManagerImpl implements ContactManager {
     Gson gson = new Gson();
     String jsonContacts = gson.toJson(contacts);
     try {
-      FileWriter writer = new FileWriter("contacts.txt");
+      //FileWriter writer = new FileWriter("contacts.txt");
+      FileWriter writer = new FileWriter(textfile);
       writer.write(jsonContacts);
       writer.close();
     } catch (IOException e) {

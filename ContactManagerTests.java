@@ -46,17 +46,14 @@ public class ContactManagerTests {
     String newName="" + oldName + "." + suffix;
     File file1 = new File(oldName); 
     File file2 = new File(newName); 
-    if (file1.exists() && !file2.exists())
+    //if (file1.exists() && !file2.exists())
+    if (file1.exists())
       try { 
+        System.out.println("COPYING");
         Files.copy(file1.toPath(),file2.toPath());
       } catch (Exception e) { 
         e.printStackTrace();
       }
-  }
-
-  @BeforeClass
-  public static void foo() { 
-    ContactManagerTests.copyFile("foo.txt", "bar");
   }
 
   @Before 
@@ -203,6 +200,7 @@ public class ContactManagerTests {
     ContactManagerTests.deleteFile(testfile);
     ContactManagerUI ui = new ContactManagerUIImpl(testfile);
     ContactManager cm = ui.launch();
+    cm.addNewContact(name1, notes); 
     cm.flush();
     assertTrue(new File(testfile).exists());
   }
@@ -219,8 +217,8 @@ public class ContactManagerTests {
     cm.addNewContact(name2, notes); 
     Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2));
     Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1));
-    ContactManagerTests.copyFile(testfile,"save");
     cm.flush();
+    ContactManagerTests.copyFile(testfile,"save");
     ContactManager cm2 = new ContactManagerImpl(testfile);
     // check names, notes, IDs
     Set<Contact> s = cm.getContacts("");   
@@ -231,6 +229,7 @@ public class ContactManagerTests {
       c = i.next();
       idsAfter.add(c.getId()); 
     }
+    cm2.flush();
     assertTrue(idsAfter.equals(idsBefore)); 
   }
 
