@@ -37,6 +37,7 @@ public class ContactManagerImpl implements ContactManager {
   }
 
   private Set<Contact> readInTextfile(String filename) { 
+    System.out.println("READING IN " + filename);
     Gson gson = new Gson();
     Set<Contact> result = new HashSet<Contact>();;
     if (new File(filename).exists()) { 

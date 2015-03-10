@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 
 
@@ -50,7 +51,7 @@ public class ContactManagerTests {
     if (file1.exists())
       try { 
         System.out.println("COPYING");
-        Files.copy(file1.toPath(),file2.toPath());
+        Files.copy(file1.toPath(),file2.toPath(),StandardCopyOption.REPLACE_EXISTING);
       } catch (Exception e) { 
         e.printStackTrace();
       }
@@ -178,7 +179,7 @@ public class ContactManagerTests {
     cm.flush();
     ContactManager cm2 = new ContactManagerImpl(testfile);
     // check names, notes, IDs
-    Set<Contact> s = cm.getContacts("");   
+    Set<Contact> s = cm2.getContacts("");   
     Iterator<Contact> i = s.iterator();
     Set<String> namesAfter = new HashSet<String>();
     Set<Integer> idsAfter = new HashSet<Integer>();
@@ -219,17 +220,24 @@ public class ContactManagerTests {
     Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1));
     cm.flush();
     ContactManagerTests.copyFile(testfile,"save");
-    ContactManager cm2 = new ContactManagerImpl(testfile);
+    ContactManagerUI ui2 = new ContactManagerUIImpl(testfile);
+    ContactManager cm2 = ui2.launch();
+    cm2.addNewContact(name3, "BLAHNOTES"); 
     // check names, notes, IDs
-    Set<Contact> s = cm.getContacts("");   
+    Set<Contact> s = cm2.getContacts("");   
+    for (Contact con : s) { 
+      System.out.println("CONCON");
+    }
     Iterator<Contact> i = s.iterator();
     Set<Integer> idsAfter = new HashSet<Integer>();
     Contact c = null;
     while (i.hasNext()) { 
+      System.out.println("YODA");
       c = i.next();
       idsAfter.add(c.getId()); 
     }
     cm2.flush();
+    ContactManagerTests.copyFile(testfile,"save.cm2");
     assertTrue(idsAfter.equals(idsBefore)); 
   }
 
