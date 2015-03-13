@@ -394,6 +394,60 @@ public class ContactManagerTests {
     assertEquals(firstMtgId, mtgId);
   }
 
+  @Test
+  public void cm_addOneFutureMeetingAndGetItBackWithGetMeeting() {
+    String label = "TEST_17.51";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    myCm.addNewContact(name3, notes);
+    myCm.addNewContact("unmatched-N-a-M-e", notes);
+    Set<Contact> set1 = myCm.getContacts("name");
+    int expectedMatches = 3;
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    int mtgId = myCm.addFutureMeeting(set1, futureDate);
+    Meeting myMtg = myCm.getMeeting(firstMtgId);
+    Set<Contact> set2 = myMtg.getContacts();
+    assertEquals(expectedMatches, set1.size());
+    assertEquals(set1, set2);
+    assertEquals(firstMtgId, mtgId);
+    assertEquals(futureDate, myMtg.getDate());
+  }
+
+  @Test
+  public void cm_addOneFutureMeetingAndGetItBackWithGetFutureMeeting() {
+    String label = "TEST_17.55";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    myCm.addNewContact(name3, notes);
+    myCm.addNewContact("unmatched-N-a-M-e", notes);
+    Set<Contact> set1 = myCm.getContacts("name");
+    int expectedMatches = 3;
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    int mtgId = myCm.addFutureMeeting(set1, futureDate);
+    FutureMeeting myMtg = myCm.getFutureMeeting(firstMtgId);
+    Set<Contact> set2 = myMtg.getContacts();
+    assertEquals(expectedMatches, set1.size());
+    assertEquals(set1, set2);
+    assertEquals(firstMtgId, mtgId);
+    assertEquals(futureDate, myMtg.getDate());
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addOneFutureMeetingAndRetrieveWithGetPastMeeting() {
+    String label = "TEST_17.57";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> set = myCm.getContacts("name");
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    int mtgId = myCm.addFutureMeeting(set, futureDate);
+    myCm.getPastMeeting(firstMtgId);
+  }
+
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addFutureMeetingWithOneInvalidContact() {
     String label = "TEST_17.6";

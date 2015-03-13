@@ -43,7 +43,6 @@ public class ContactManagerImpl implements ContactManager {
       contacts.addAll(fileContacts);
   }
 
-/*
   public ContactManagerImpl(String filename) {
     textfile = filename;
     contacts = new HashSet<Contact>();
@@ -71,15 +70,30 @@ public class ContactManagerImpl implements ContactManager {
   }
 */
 
+
   public int addFutureMeeting(Set<Contact> sc, Calendar date) {
     Calendar rightNow = Calendar.getInstance();
     if (date.before(rightNow)) {
       throw new IllegalArgumentException("Date must be in the future.");
     }
+    if (!allContactsExist(sc)) {
+      throw new IllegalArgumentException("Nonexistent contact.");
+    }
     int id = nextMtgId++;
     FutureMeeting fm = new FutureMeetingImpl(id, date, sc);
     meetings.add(fm);
     return id;
+  }
+
+  private boolean allContactsExist(Set<Contact> sc) {
+    boolean result = true;
+    for (Contact c: sc) {
+      result = contacts.contains(c);
+      if (result == false) {
+        break;
+      }
+    }
+    return result;
   }
 
   public PastMeeting getPastMeeting(int id) {
@@ -91,7 +105,17 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public Meeting getMeeting(int id) {
-    return null;
+    //return null;
+    Meeting result = null;
+    Iterator<Meeting> i = meetings.iterator();
+    while (i.hasNext()) { 
+      Meeting m = i.next();
+      if (m.getId() == id) {
+        result = m;
+        break;
+      }
+    }
+    return result;
 	}
 
   public List<Meeting> getFutureMeetingList(Contact contact) {
