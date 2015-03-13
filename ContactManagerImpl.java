@@ -107,6 +107,21 @@ public class ContactManagerImpl implements ContactManager {
 
   public Set<Contact> getContacts(int... ids) {
     //return null;
+    Set<Contact> result = new HashSet<Contact>();
+    for (int argId : ids) {
+      boolean foundId = false;
+      for (Contact c : contacts) { // TODO: O(n^2) ... need to redo.. memoize?
+        if (c.getId() == argId) {
+          result.add(c);
+          foundId = true;
+        }
+      }
+      if (foundId == false) {
+        throw new IllegalArgumentException("Could not find requested ID " + argId);
+      }
+    }
+    return result;
+
 	}
 
   public Set<Contact> getContacts(String name) {

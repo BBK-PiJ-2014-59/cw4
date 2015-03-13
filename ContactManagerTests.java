@@ -1,5 +1,6 @@
 import org.junit.*;
 import static org.junit.Assert.*;
+import java.util.Calendar;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,12 +15,19 @@ import java.nio.file.StandardCopyOption;
 public class ContactManagerTests { 
 
   private final String textfile = "contacts.txt";
+  private final int firstMtgId = 100;
+  private final int mtgId1 = firstMtgId;
+  private final int mtgId2 = firstMtgId+1;
+  private final int mtgId3 = firstMtgId+2;
+  private final int mtgId4 = firstMtgId+3;
+
   private final int firstContactId = 100;
   private final int badContactId = firstContactId-1;
   private final int contactId1 = firstContactId;
   private final int contactId2 = firstContactId+1;
   private final int contactId3 = firstContactId+2;
   private final int contactId4 = firstContactId+3;
+
 
   private final String name1 = "name1";
   private final String name2 = "name2";
@@ -29,6 +37,19 @@ public class ContactManagerTests {
   private Contact myContact2;
   private ContactManager myCm;
   private ContactManagerUI myCmui;
+
+  private static Set<Contact> populateTestContactSet(int loId, int hiId) {
+    Set <Contact> testContactSet = new HashSet<Contact>();
+    for (int id=loId; id <= hiId; id++) {
+      String name = "name" + id;
+      String notes = "notes" + id;
+      testContactSet.add(new ContactImpl(name,notes,id));
+    }
+    for (Contact ci: testContactSet) {
+      System.out.println(ci.getName());
+    }
+    return testContactSet;
+  }
 
   private static void deleteFile(String filename) { 
     try { 
@@ -345,5 +366,20 @@ public class ContactManagerTests {
     myCm.addNewContact(name1, notes); 
     Set<Contact> s = myCm.getContacts(contactId1,badContactId);
   }
+
+  @Test
+  public void cm_addFutureMeetingReturnsCorrectMeetingIds() {
+    String label = "TEST_18";
+		System.out.println(label);
+    int numContacts = 5;
+    Set<Contact> set = ContactManagerTests.populateTestContactSet(firstContactId, firstContactId+numContacts); 
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    assertEquals(mtgId1, myCm.addFutureMeeting(set, futureDate));
+    assertEquals(mtgId2, myCm.addFutureMeeting(set, futureDate));
+    assertEquals(mtgId3, myCm.addFutureMeeting(set, futureDate));
+  }
+
+
 
 }
