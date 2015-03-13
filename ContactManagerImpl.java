@@ -23,11 +23,15 @@ public class ContactManagerImpl implements ContactManager {
   private String textfile = "contacts.txt";
   private static final int FIRSTCONTACTID = 100;
   private int nextContactId = FIRSTCONTACTID;
+  private static final int FIRSTMTGID = 100;
+  private int nextMtgId = FIRSTMTGID;
   //private Set<Contact> contacts = new HashSet<Contact>();
   private Set<Contact> contacts;
+  private List<Meeting> meetings;
 
   public ContactManagerImpl() {
     contacts = new HashSet<Contact>();
+    meetings = new ArrayList<Meeting>();
   }
 
 /*
@@ -67,9 +71,16 @@ public class ContactManagerImpl implements ContactManager {
   }
 */
 
-  public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
-    return 0;
-	}
+  public int addFutureMeeting(Set<Contact> sc, Calendar date) {
+    Calendar rightNow = Calendar.getInstance();
+    if (date.before(rightNow)) {
+      throw new IllegalArgumentException("Date must be in the future.");
+    }
+    int id = nextMtgId++;
+    FutureMeeting fm = new FutureMeetingImpl(id, date, sc);
+    meetings.add(fm);
+    return id;
+  }
 
   public PastMeeting getPastMeeting(int id) {
     return null;

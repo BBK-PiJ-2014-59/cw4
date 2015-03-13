@@ -38,6 +38,21 @@ public class ContactManagerTests {
   private ContactManager myCm;
   private ContactManagerUI myCmui;
 
+/*
+  private static addContacts(int loId, int hiId) {
+    Set <Contact> testContactSet = new HashSet<Contact>();
+    for (int id=loId; id <= hiId; id++) {
+      String name = "name" + id;
+      String notes = "notes" + id;
+      testContactSet.add(new ContactImpl(name,notes,id));
+    }
+    for (Contact ci: testContactSet) {
+      System.out.println(ci.getName());
+    }
+    return testContactSet;
+  }
+*/
+
   private static Set<Contact> populateTestContactSet(int loId, int hiId) {
     Set <Contact> testContactSet = new HashSet<Contact>();
     for (int id=loId; id <= hiId; id++) {
@@ -368,6 +383,30 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void cm_addFutureMeetingWithOneExistingContact() {
+    String label = "TEST_17.5";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> s = myCm.getContacts(name1);
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    int mtgId = myCm.addFutureMeeting(s, futureDate);
+    assertEquals(firstMtgId, mtgId);
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addFutureMeetingWithOneInvalidContact() {
+    String label = "TEST_17.6";
+		System.out.println(label);
+    Set<Contact> s = new HashSet<Contact>();
+    s.add(new ContactImpl("name", "notes", firstContactId-1));
+    Calendar futureDate = Calendar.getInstance();
+    futureDate.add(Calendar.YEAR,1);
+    myCm.addFutureMeeting(s, futureDate);
+  }
+
+/*
+  @Test
   public void cm_addFutureMeetingReturnsCorrectMeetingIds() {
     String label = "TEST_18";
 		System.out.println(label);
@@ -377,9 +416,24 @@ public class ContactManagerTests {
     futureDate.add(Calendar.YEAR,1);
     assertEquals(mtgId1, myCm.addFutureMeeting(set, futureDate));
     assertEquals(mtgId2, myCm.addFutureMeeting(set, futureDate));
-    assertEquals(mtgId3, myCm.addFutureMeeting(set, futureDate));
+    assertEquals(mtgId2, myCm.addFutureMeeting(set, futureDate));
   }
 
-
-
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addFutureMeetingWithPastDate() {
+    String label = "TEST_19";
+		System.out.println(label);
+    int numContacts = 5;
+    Set<Contact> set = ContactManagerTests.populateTestContactSet(firstContactId, firstContactId+numContacts); 
+    Calendar pastDate = Calendar.getInstance();
+    pastDate.add(Calendar.YEAR,-1);
+    myCm.addFutureMeeting(set, pastDate);
+  }
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addFutureMeetingWithInvalidContact() {
+    String label = "TEST_20";
+		System.out.println(label);
+  }
+*/
+ 
 }
