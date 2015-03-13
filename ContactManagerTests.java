@@ -37,6 +37,7 @@ public class ContactManagerTests {
   private Contact myContact2;
   private ContactManager myCm;
   private ContactManagerUI myCmui;
+  private ContactManagerUtil util;
 
 /*
   private static addContacts(int loId, int hiId) {
@@ -100,6 +101,7 @@ public class ContactManagerTests {
 
   @Before 
   public void buildUp() {
+    util = new ContactManagerUtilImpl();
     ContactManagerTests.deleteFile(textfile);
     notes = "notes";
     myContact1 = new ContactImpl(name1, notes, 100);
@@ -436,9 +438,30 @@ public class ContactManagerTests {
     assertEquals(futureDate, myMtg.getDate());
   }
 
+  @Test
+  public void util_isFuture() {
+    String label = "TEST_17.56";
+		System.out.println(label);
+    Calendar cal = Calendar.getInstance();
+    assertFalse(util.isFuture(cal));
+    cal.add(Calendar.YEAR,1);
+    assertTrue(util.isFuture(cal));
+  }
+
+  @Test
+  public void util_isPast() {
+    String label = "TEST_17.57";
+		System.out.println(label);
+    Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.SECOND,-1);
+    assertTrue(util.isPast(cal));
+    cal.add(Calendar.YEAR,1);
+    assertFalse(util.isPast(cal));
+  }
+
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addOneFutureMeetingAndRetrieveWithGetPastMeeting() {
-    String label = "TEST_17.57";
+    String label = "TEST_17.58";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> set = myCm.getContacts("name");
@@ -459,35 +482,111 @@ public class ContactManagerTests {
     myCm.addFutureMeeting(s, futureDate);
   }
 
-/*
   @Test
-  public void cm_addFutureMeetingReturnsCorrectMeetingIds() {
+  public void cm_getFutureMeetingListForContactReturnsOneMeeting() {
     String label = "TEST_18";
 		System.out.println(label);
-    int numContacts = 5;
-    Set<Contact> set = ContactManagerTests.populateTestContactSet(firstContactId, firstContactId+numContacts); 
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    assertEquals(mtgId1, myCm.addFutureMeeting(set, futureDate));
-    assertEquals(mtgId2, myCm.addFutureMeeting(set, futureDate));
-    assertEquals(mtgId2, myCm.addFutureMeeting(set, futureDate));
   }
 
-  @Test (expected=IllegalArgumentException.class) 
-  public void cm_addFutureMeetingWithPastDate() {
+  @Test
+  public void cm_getFutureMeetingListForContactReturnsNoMeeting() {
     String label = "TEST_19";
 		System.out.println(label);
-    int numContacts = 5;
-    Set<Contact> set = ContactManagerTests.populateTestContactSet(firstContactId, firstContactId+numContacts); 
-    Calendar pastDate = Calendar.getInstance();
-    pastDate.add(Calendar.YEAR,-1);
-    myCm.addFutureMeeting(set, pastDate);
   }
-  @Test (expected=IllegalArgumentException.class) 
-  public void cm_addFutureMeetingWithInvalidContact() {
+
+  @Test
+  public void cm_getFutureMeetingListForContactReturnsTwoMeetings() {
     String label = "TEST_20";
 		System.out.println(label);
   }
-*/
  
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_getFutureMeetingListForInvalidContact() {
+    String label = "TEST_21";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getFutureMeetingListForDateReturnsOneMeeting() {
+    String label = "TEST_22";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getFutureMeetingListForDateReturnsTwoMeetings() {
+    String label = "TEST_23";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getFutureMeetingListForDateReturnsNoMeetings() {
+    String label = "TEST_24";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getPastMeetingListForContactReturnsOneMeeting() {
+    String label = "TEST_25";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getPastMeetingListForContactReturnsNoMeeting() {
+    String label = "TEST_26";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_getPastMeetingListForContactReturnsTwoMeetings() {
+    String label = "TEST_27";
+		System.out.println(label);
+  }
+ 
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_getPastMeetingListForInvalidContact() {
+    String label = "TEST_28";
+		System.out.println(label);
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addNewPastMeetingInvalidOrNoContact() {
+    String label = "TEST_29";
+		System.out.println(label);
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void cm_addNewPastMeetingNullArgument() {
+    String label = "TEST_30";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_addNewPastMeetingAddsPastMeeting() {
+    String label = "TEST_31";
+		System.out.println(label);
+  }
+
+  @Test
+  public void cm_addMeetingNotesAddsNotes() {
+    String label = "TEST_32";
+		System.out.println(label);
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addMeetingNotesToNonExistentMeeting() {
+    String label = "TEST_33";
+		System.out.println(label);
+  }
+
+  @Test (expected=IllegalStateException.class) 
+  public void cm_addMeetingNotesToFutureMeeting() {
+    String label = "TEST_34";
+		System.out.println(label);
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void cm_addMeetingNotesWithNullNotes() {
+    String label = "TEST_35";
+		System.out.println(label);
+  }
 }

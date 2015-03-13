@@ -20,6 +20,7 @@ import java.io.ObjectOutputStream;
 public class ContactManagerImpl implements ContactManager { 
 
   //private static final String textfile = "contacts.txt";
+  private ContactManagerUtil util = new ContactManagerUtilImpl();
   private String textfile = "contacts.txt";
   private static final int FIRSTCONTACTID = 100;
   private int nextContactId = FIRSTCONTACTID;
@@ -97,15 +98,28 @@ public class ContactManagerImpl implements ContactManager {
   }
 
   public PastMeeting getPastMeeting(int id) {
-    return null;
+    //return null;
+    PastMeeting result;
+    Meeting m = getMeeting(id);
+    if (util.isPast(m.getDate()))
+      result = (PastMeeting) m; 
+    else
+      throw new IllegalArgumentException("Meeting " + id + " is in the future.");
+    return result;
 	}
 
   public FutureMeeting getFutureMeeting(int id) {
-    return null;
+    FutureMeeting result;
+    Meeting m = getMeeting(id);
+    if (util.isFuture(m.getDate()))
+      result = (FutureMeeting) m; 
+    else
+      throw new IllegalArgumentException("Meeting " + id + " is in the past.");
+    return result;
 	}
 
+
   public Meeting getMeeting(int id) {
-    //return null;
     Meeting result = null;
     Iterator<Meeting> i = meetings.iterator();
     while (i.hasNext()) { 
