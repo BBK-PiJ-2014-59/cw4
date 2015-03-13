@@ -113,11 +113,11 @@ public interface ContactManager {
   void addMeetingNotes(int id, String text);
 
   /**
-   * Create a new contact with the specified name and notes.
+   * Create a new contact with the specified name and notes. - DONE
    *
    * @param name the name of the contact.
    * @param notes notes to be added about the contact.
-   * @throws NullPointerException if the name or the notes are null
+   * @throws NullPointerException if the name or the notes are null - DONE - TESTS 5,6
    */
   void addNewContact(String name, String notes);
 

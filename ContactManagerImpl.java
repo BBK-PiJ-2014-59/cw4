@@ -9,7 +9,13 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.File;
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
+import java.io.Serializable;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 
 public class ContactManagerImpl implements ContactManager { 
 
@@ -21,6 +27,11 @@ public class ContactManagerImpl implements ContactManager {
   private Set<Contact> contacts;
 
   public ContactManagerImpl() {
+    contacts = new HashSet<Contact>();
+  }
+
+/*
+  public ContactManagerImpl() {
     //Set<Contact> contacts = new HashSet<Contact>();
     contacts = new HashSet<Contact>();
     Set<Contact> fileContacts = readInTextfile(textfile);
@@ -28,6 +39,7 @@ public class ContactManagerImpl implements ContactManager {
       contacts.addAll(fileContacts);
   }
 
+/*
   public ContactManagerImpl(String filename) {
     textfile = filename;
     contacts = new HashSet<Contact>();
@@ -35,7 +47,9 @@ public class ContactManagerImpl implements ContactManager {
     if (fileContacts != null)
       contacts.addAll(fileContacts);
   }
+*/
 
+/*
   private Set<Contact> readInTextfile(String filename) { 
     System.out.println("READING IN " + filename);
     Gson gson = new Gson();
@@ -51,6 +65,7 @@ public class ContactManagerImpl implements ContactManager {
     }
     return result;
   }
+*/
 
   public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
     return 0;
@@ -91,7 +106,7 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public Set<Contact> getContacts(int... ids) {
-    return null;
+    //return null;
 	}
 
   public Set<Contact> getContacts(String name) {
@@ -108,6 +123,22 @@ public class ContactManagerImpl implements ContactManager {
     return result;
 	}
 
+  public void flush() { 
+    // save the object to file
+    FileOutputStream fos = null;
+    ObjectOutputStream out = null;
+    try {
+      fos = new FileOutputStream(textfile);
+      out = new ObjectOutputStream(fos);
+      out.writeObject(this);
+
+      out.close();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+/*
   public void flush() {
     Gson gson = new Gson();
     String jsonContacts = gson.toJson(contacts);
@@ -121,5 +152,6 @@ public class ContactManagerImpl implements ContactManager {
     }
     System.out.println(jsonContacts);
 	}
+*/
 
 }

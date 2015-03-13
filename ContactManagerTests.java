@@ -15,6 +15,11 @@ public class ContactManagerTests {
 
   private final String textfile = "contacts.txt";
   private final int firstContactId = 100;
+  private final int badContactId = firstContactId-1;
+  private final int contactId1 = firstContactId;
+  private final int contactId2 = firstContactId+1;
+  private final int contactId3 = firstContactId+2;
+  private final int contactId4 = firstContactId+3;
 
   private final String name1 = "name1";
   private final String name2 = "name2";
@@ -159,7 +164,7 @@ public class ContactManagerTests {
   public void addNewContact_nullNotes() {
     String label = "TEST_6";
 		System.out.println(label);
-    myCm.addNewContact(notes, null); 
+    myCm.addNewContact(name1, null); 
   }
 
   @Test
@@ -177,7 +182,10 @@ public class ContactManagerTests {
     Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1,firstContactId+2));
     ContactManagerTests.copyFile(testfile,"save");
     cm.flush();
-    ContactManager cm2 = new ContactManagerImpl(testfile);
+    //ContactManager cm2 = new ContactManagerImpl(testfile);
+    ContactManagerUI ui2 = new ContactManagerUIImpl(testfile);
+    ContactManager cm2 = ui.launch();
+
     // check names, notes, IDs
     Set<Contact> s = cm2.getContacts("");   
     Iterator<Contact> i = s.iterator();
@@ -194,6 +202,14 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void uiLaunchReturnsContactManager() { 
+    String label = "TEST_7.001";
+    String testfile = "" + textfile + "." + label;
+    ContactManagerTests.deleteFile(testfile);
+    assertTrue(new ContactManagerUIImpl(testfile).launch() instanceof ContactManager);
+  }
+
+  @Test
   public void flushAfterStartingWithMissingTestfileCreatesIt() { 
     String label = "TEST_7.01";
 		System.out.println(label);
@@ -201,6 +217,7 @@ public class ContactManagerTests {
     ContactManagerTests.deleteFile(testfile);
     ContactManagerUI ui = new ContactManagerUIImpl(testfile);
     ContactManager cm = ui.launch();
+    //assertNull(cm);
     cm.addNewContact(name1, notes); 
     cm.flush();
     assertTrue(new File(testfile).exists());
@@ -298,6 +315,35 @@ public class ContactManagerTests {
     int out = myCmui.promptInt("prompt");
     System.setIn(System.in);
     assertEquals(-1,out);
+  }
+
+  @Test
+  public void cm_getBackContactsById() {
+    String label = "TEST_16";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes); 
+    myCm.addNewContact(name2, notes); 
+    myCm.addNewContact(name3, notes); 
+    Set<Integer> idsSearchedFor = new HashSet<Integer>(Arrays.asList(contactId1,contactId2));
+    Set<Contact> s = myCm.getContacts(contactId1,contactId2);
+
+    Iterator<Contact> i = s.iterator();
+    Set<Integer> idsReturned = new HashSet<Integer>();
+    Contact c = null;
+    while (i.hasNext()) { 
+      c = i.next();
+      idsReturned.add(c.getId()); 
+    }
+
+    assertEquals(idsSearchedFor,idsReturned);
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_badIdToGetContactsById() {
+    String label = "TEST_17";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes); 
+    Set<Contact> s = myCm.getContacts(contactId1,badContactId);
   }
 
 }

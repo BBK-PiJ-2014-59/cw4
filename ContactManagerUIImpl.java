@@ -1,15 +1,20 @@
 import java.util.Scanner;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+
 
 public class ContactManagerUIImpl implements ContactManagerUI { 
 
-  private String textfile = "contacts.txt";
+  private String filename = "contacts.txt";
 
   public ContactManagerUIImpl() {}
 
   public ContactManagerUIImpl(String testfile) { 
-    textfile = testfile;
-    System.out.println("textfile: " + textfile);
+    filename = testfile;
+    System.out.println("filename: " + filename);
   }
 
   public void display(ContactManager cm) { 
@@ -38,18 +43,38 @@ public class ContactManagerUIImpl implements ContactManagerUI {
     }
   }
 
+/*
   public ContactManager launch() { 
-    if (textfile == null)
+    if (filename == null)
       throw new NullPointerException();
     ContactManager result;
-    //File f = new File(textfile);
+    //File f = new File(filename);
     //if (f.exists() && !f.isDirectory()) {
-      result = new ContactManagerImpl(textfile);
+      result = new ContactManagerImpl(filename);
     //} else {
      // result = new ContactManagerImpl();
     //}
     return result;
   }
+*/
+
+  public ContactManager launch() { 
+    if (filename == null)
+      throw new NullPointerException();
+    ContactManager result = null;
+    FileInputStream fis = null;
+    ObjectInputStream in = null;
+    try { 
+      fis = new FileInputStream(filename);
+      in = new ObjectInputStream(fis);
+      result = (ContactManager) in.readObject();
+      in.close();
+    } catch (Exception ex) { 
+      ex.printStackTrace();
+    }
+    return result;
+  }
+
 
   public String promptString(String prompt) { 
     if (prompt == null)
