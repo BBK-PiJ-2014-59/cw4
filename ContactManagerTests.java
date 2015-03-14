@@ -612,6 +612,15 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void util_areSameDay() {
+    String label = "TEST_23.5";
+		System.out.println(label);
+    assertFalse(util.areSameDay(pastDate1, futureDate1));
+    Calendar date = (Calendar) pastDate1.clone();
+    assertTrue(util.areSameDay(pastDate1, date));
+  }
+
+  @Test
   public void cm_getFutureMeetingListForDateReturnsNoMeetings() {
     String label = "TEST_24";
 		System.out.println(label);

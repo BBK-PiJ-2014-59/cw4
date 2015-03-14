@@ -150,6 +150,12 @@ public class ContactManagerImpl implements ContactManager {
   public List<Meeting> getFutureMeetingList(Calendar date) {
     //return null;
     List<Meeting> result = new ArrayList<Meeting>();
+    Iterator<Meeting> i = meetings.iterator();
+    while (i.hasNext()) { 
+      Meeting m = i.next();
+      if (util.areSameDay(date,m.getDate())) 
+        result.add(m);
+    }
     return result;
 	}
 

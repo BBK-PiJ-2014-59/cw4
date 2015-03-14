@@ -20,4 +20,13 @@ public interface ContactManagerUtil {
     * @return whether date is in the past.
     */
   boolean isPast(Calendar date);
+
+  /**
+    * Returns whether two Calendar dates are on the same day.
+    *
+    * @param date1 a date. 
+    * @param date2 another date. 
+    * @return whether they're on the same day.
+    */
+  boolean areSameDay(Calendar date1, Calendar date2);
 }
