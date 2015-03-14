@@ -535,10 +535,10 @@ public class ContactManagerTests {
     Set<Contact> nameSet1 = myCm.getContacts("name1");
     myCm.addFutureMeeting(nameSet1, futureDate1);
     Set<Contact> nameSet2 = myCm.getContacts("name2");
-    Contact c = (Contact) nameSet2.toArray()[0];
-    List<Meeting> list = myCm.getFutureMeetingList(c);
+    Contact contact2 = (Contact) nameSet2.toArray()[0];
+    List<Meeting> mtgListContact2 = myCm.getFutureMeetingList(contact2);
     assertEquals(1, nameSet2.size());
-    assertEquals(0, list.size());
+    assertEquals(0, mtgListContact2.size());
   }
 
   @Test

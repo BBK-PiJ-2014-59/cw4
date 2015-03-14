@@ -133,11 +133,24 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public List<Meeting> getFutureMeetingList(Contact contact) {
-    return null;
+    //return null;
+    if (!contacts.contains(contact))
+      throw new IllegalArgumentException("Contact doesn't exist.");
+    List<Meeting> result = new ArrayList<Meeting>();
+    Iterator<Meeting> i = meetings.iterator();
+    while (i.hasNext()) { 
+      Meeting m = i.next();
+      if (m.getContacts().contains(contact)) 
+        result.add(m);
+    }
+    return result;
 	}
 
+
   public List<Meeting> getFutureMeetingList(Calendar date) {
-    return null;
+    //return null;
+    List<Meeting> result = new ArrayList<Meeting>();
+    return result;
 	}
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
@@ -145,6 +158,7 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
+
 	}
 
   public void addMeetingNotes(int id, String text) {
