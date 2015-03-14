@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,6 +29,12 @@ public class ContactManagerTests {
   private final int contactId3 = firstContactId+2;
   private final int contactId4 = firstContactId+3;
 
+  private Calendar futureDate1;
+  private Calendar futureDate2;
+  private Calendar futureDate3;
+  private Calendar pastDate1;
+  private Calendar pastDate2;
+  private Calendar pastDate3;
 
   private final String name1 = "name1";
   private final String name2 = "name2";
@@ -97,6 +104,36 @@ public class ContactManagerTests {
       } catch (Exception e) { 
         e.printStackTrace();
       }
+  }
+
+  @BeforeAll
+  public void makeTestObjects() {
+
+    Contact badContact = new ContactImpl("name", "notes", firstContactId-1); 
+
+    futureDate1 = Calendar.getInstance();
+    futureDate1.add(Calendar.MONTH, 1);
+    futureDate1.add(Calendar.HOUR_OF_DAY, 12); // in case tests are run at midnight
+
+    futureDate2 = Calendar.getInstance();
+    futureDate2.add(Calendar.MONTH, 2);
+    futureDate2.add(Calendar.HOUR_OF_DAY, 12); 
+
+    futureDate3 = Calendar.getInstance();
+    futureDate3.add(Calendar.MONTH, 3);
+    futureDate3.add(Calendar.HOUR_OF_DAY, 12); 
+
+    pastDate1 = Calendar.getInstance();
+    pastDate1.add(Calendar.MONTH, -3);
+    pastDate1.add(Calendar.HOUR_OF_DAY, 12); // in case tests are run at midnight
+
+    pastDate2 = Calendar.getInstance();
+    pastDate2.add(Calendar.MONTH, -2);
+    pastDate2.add(Calendar.HOUR_OF_DAY, 12); 
+
+    pastDate3 = Calendar.getInstance();
+    pastDate3.add(Calendar.MONTH, -1);
+    pastDate3.add(Calendar.HOUR_OF_DAY, 12); 
   }
 
   @Before 
@@ -390,9 +427,7 @@ public class ContactManagerTests {
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> s = myCm.getContacts(name1);
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    int mtgId = myCm.addFutureMeeting(s, futureDate);
+    int mtgId = myCm.addFutureMeeting(s, futureDate1);
     assertEquals(firstMtgId, mtgId);
   }
 
@@ -406,15 +441,13 @@ public class ContactManagerTests {
     myCm.addNewContact("unmatched-N-a-M-e", notes);
     Set<Contact> set1 = myCm.getContacts("name");
     int expectedMatches = 3;
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    int mtgId = myCm.addFutureMeeting(set1, futureDate);
+    int mtgId = myCm.addFutureMeeting(set1, futureDate1);
     Meeting myMtg = myCm.getMeeting(firstMtgId);
     Set<Contact> set2 = myMtg.getContacts();
     assertEquals(expectedMatches, set1.size());
     assertEquals(set1, set2);
     assertEquals(firstMtgId, mtgId);
-    assertEquals(futureDate, myMtg.getDate());
+    assertEquals(futureDate1, myMtg.getDate());
   }
 
   @Test
@@ -427,15 +460,13 @@ public class ContactManagerTests {
     myCm.addNewContact("unmatched-N-a-M-e", notes);
     Set<Contact> set1 = myCm.getContacts("name");
     int expectedMatches = 3;
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    int mtgId = myCm.addFutureMeeting(set1, futureDate);
+    int mtgId = myCm.addFutureMeeting(set1, futureDate1);
     FutureMeeting myMtg = myCm.getFutureMeeting(firstMtgId);
     Set<Contact> set2 = myMtg.getContacts();
     assertEquals(expectedMatches, set1.size());
     assertEquals(set1, set2);
     assertEquals(firstMtgId, mtgId);
-    assertEquals(futureDate, myMtg.getDate());
+    assertEquals(futureDate1, myMtg.getDate());
   }
 
   @Test
@@ -465,9 +496,7 @@ public class ContactManagerTests {
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> set = myCm.getContacts("name");
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    int mtgId = myCm.addFutureMeeting(set, futureDate);
+    int mtgId = myCm.addFutureMeeting(set, futureDate1);
     myCm.getPastMeeting(firstMtgId);
   }
 
@@ -476,117 +505,289 @@ public class ContactManagerTests {
     String label = "TEST_17.6";
 		System.out.println(label);
     Set<Contact> s = new HashSet<Contact>();
-    s.add(new ContactImpl("name", "notes", firstContactId-1));
-    Calendar futureDate = Calendar.getInstance();
-    futureDate.add(Calendar.YEAR,1);
-    myCm.addFutureMeeting(s, futureDate);
+    s.add(badContact);
+    myCm.addFutureMeeting(s, futureDate1);
   }
 
   @Test
-  public void cm_getFutureMeetingListForContactReturnsOneMeeting() {
+  public void cm_getFutureMeetingListForContactReturnsOnlyMeeting() {
     String label = "TEST_18";
 		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> set = myCm.getContacts("name");
+    Contact c = (Contact) set.toArray()[0];
+    int mtgId = myCm.addFutureMeeting(set, futureDate1);
+    List<Meeting> list = myCm.getFutureMeetingList(c);
+    Meeting m = list.get(0);
+    Set<Contact> set2 = m.getContacts();
+    Contact c2 = (Contact) set2.toArray()[0];
+    assertEquals(name1, c2.getName());
   }
 
   @Test
   public void cm_getFutureMeetingListForContactReturnsNoMeeting() {
     String label = "TEST_19";
 		System.out.println(label);
+    // Create a meeting with contact "1" but search for contact "2"
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    Set<Contact> nameSet1 = myCm.getContacts("name1");
+    myCm.addFutureMeeting(nameSet1, futureDate1);
+    Set<Contact> nameSet2 = myCm.getContacts("name2");
+    Contact c = (Contact) nameSet2.toArray()[0];
+    List<Meeting> list = myCm.getFutureMeetingList(c);
+    assertEquals(1, nameSet2.size());
+    assertEquals(0, list.size());
   }
 
   @Test
-  public void cm_getFutureMeetingListForContactReturnsTwoMeetings() {
+  public void cm_getFutureMeetingListForContactReturnsOneMeeting() {
     String label = "TEST_20";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+
+    // add meeting with contact 1:
+
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int contact1MtgId = myCm.addFutureMeeting(nameSet, futureDate1);
+
+    // add meeting without contact 1:
+
+    Set<Contact> nameSet2 = myCm.getContacts("name2");
+    myCm.addFutureMeeting(nameSet2, futureDate1);
+
+    // search for meetings with contact 1:
+
+    Set<Contact> nameSet1 = myCm.getContacts("name1");
+    Contact contact1 = (Contact) nameSet1.toArray()[0];
+    List<Meeting> list = myCm.getFutureMeetingList(contact1);
+
+    assertEquals(1, list.size());
+    assertEquals(contact1MtgId, list.get(0).getId());
   }
  
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getFutureMeetingListForInvalidContact() {
     String label = "TEST_21";
 		System.out.println(label);
+    myCm.getFutureMeetingList(badContact);
   }
 
   @Test
-  public void cm_getFutureMeetingListForDateReturnsOneMeeting() {
+  public void cm_getFutureMeetingListForDateReturnsOnlyMeeting() {
     String label = "TEST_22";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int mtgId = myCm.addFutureMeeting(nameSet, futureDate1);
+
+    List<Meeting> list = myCm.getFutureMeetingList(futureDate1);
+    assertEqual(1, list.size());
+    assertEquals(mtgId, list.get(0).getId());
   }
 
   @Test
-  public void cm_getFutureMeetingListForDateReturnsTwoMeetings() {
+  public void cm_getFutureMeetingListForDateReturnsOneOfTwoMeetings() {
     String label = "TEST_23";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addFutureMeeting(nameSet, futureDate2);
+
+    List<Meeting> listDate1 = myCm.getFutureMeetingList(futureDate1);
+    assertEquals(1, listDate1.size());
+    assertEquals(futureDate1, listDate1.get(0).getDate());
+
+    List<Meeting> listDate2 = myCm.getFutureMeetingList(futureDate2);
+    assertEquals(1, listDate2.size());
+    assertEquals(futureDate2, listDate2.get(0).getDate());
+
   }
 
   @Test
   public void cm_getFutureMeetingListForDateReturnsNoMeetings() {
     String label = "TEST_24";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addFutureMeeting(nameSet, futureDate2);
+
+    List<Meeting> listDate3 = myCm.getFutureMeetingList(futureDate3);
+    assertEquals(0, listDate3.size());
   }
 
   @Test
-  public void cm_getPastMeetingListForContactReturnsOneMeeting() {
+  public void cm_getPastMeetingListForContactReturnsOnlyMeeting() {
     String label = "TEST_25";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    Set<Contact> set = myCm.getContacts("name");
+    Contact c = (Contact) set.toArray()[0];
+    int mtgId = myCm.addPastMeeting(set, pastDate1);
+    List<Meeting> list = myCm.getPastMeetingList(c);
+    Meeting m = list.get(0);
+    Set<Contact> set2 = m.getContacts();
+    Contact c2 = (Contact) set2.toArray()[0];
+    assertEquals(name1, c2.getName());
+
   }
 
   @Test
   public void cm_getPastMeetingListForContactReturnsNoMeeting() {
     String label = "TEST_26";
 		System.out.println(label);
+    // Create a meeting with contact "1" but search for contact "2"
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    Set<Contact> nameSet1 = myCm.getContacts("name1");
+    myCm.addPastMeeting(nameSet1, pastDate1);
+    Set<Contact> nameSet2 = myCm.getContacts("name2");
+    Contact c = (Contact) nameSet2.toArray()[0];
+    List<Meeting> list = myCm.getPastMeetingList(c);
+    assertEquals(1, nameSet2.size());
+    assertEquals(0, list.size());
   }
 
   @Test
-  public void cm_getPastMeetingListForContactReturnsTwoMeetings() {
+  public void cm_getPastMeetingListForContactReturnsOneOfTwoMeetings() {
     String label = "TEST_27";
 		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+
+    // add meeting with contact 1:
+
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int contact1MtgId = myCm.addPastMeeting(nameSet, pastDate1);
+
+    // add meeting without contact 1:
+
+    Set<Contact> nameSet2 = myCm.getContacts("name2");
+    myCm.addPastMeeting(nameSet2, pastDate1);
+
+    // search for meetings with contact 1:
+
+    Set<Contact> nameSet1 = myCm.getContacts("name1");
+    Contact contact1 = (Contact) nameSet1.toArray()[0];
+    List<Meeting> list = myCm.getPastMeetingList(contact1);
+
+    assertEquals(1, list.size());
+    assertEquals(contact1MtgId, list.get(0).getId());
   }
  
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getPastMeetingListForInvalidContact() {
     String label = "TEST_28";
 		System.out.println(label);
+    myCm.getPastMeetingList(badContact);
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addNewPastMeetingInvalidOrNoContact() {
+  public void cm_addNewPastMeetingNoContacts() {
     String label = "TEST_29";
 		System.out.println(label);
+    Set<Contact> emptySet = new HashSet<Contact>();
+    myCm.addNewPastMeeting(emptySet, pastDate1, "notes"); 
+  }
+
+  @Test (expected=IllegalArgumentException.class) 
+  public void cm_addNewPastMeetingInvalidContact() {
+    String label = "TEST_29.5";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> badSet = new HashSet<Contact>();
+    badSet.add(myCm.getContacts("name"));
+    badSet.add(badContact);
+    myCm.addNewPastMeeting(badSet, pastDate1, "notes"); 
   }
 
   @Test (expected=NullPointerException.class) 
-  public void cm_addNewPastMeetingNullArgument() {
+  public void cm_addNewPastMeetingNullContacts() {
     String label = "TEST_30";
 		System.out.println(label);
+    myCm.addNewPastMeeting(null, pastDate1, "notes");
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void cm_addNewPastMeetingNullDate() {
+    String label = "TEST_30.1";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    myCm.addNewPastMeeting(nameSet, null, "notes");
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void cm_addNewPastMeetingNullNotes() {
+    String label = "TEST_30.2";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    myCm.addNewPastMeeting(nameSet, pastDate1, null);
   }
 
   @Test
   public void cm_addNewPastMeetingAddsPastMeeting() {
     String label = "TEST_31";
 		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    String mtgNotes = "mtgNotes";
+    Set<Contact> nameSet = myCm.getContacts("name");
+    myCm.addNewPastMeeting(nameSet, pastDate1, mtgNotes);
+    PastMeeting pm = myCm.getPastMeeting(mtgId1);
+    assertEquals(mtgId1, pm.getId());
+    assertEquals(pastDate1, pm.getDate());
+    assertEquals(mtgNotes, pm.mtgNotes());
+    assertEquals(nameSet, pm.getContacts());
   }
 
   @Test
   public void cm_addMeetingNotesAddsNotes() {
     String label = "TEST_32";
 		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int mtgId = myCm.addPastMeeting(nameSet, pastDate1, notes);
+    String notes2 = "notes2";
+    myCm.addMeetingNotes(mtgId, notes2);
+    assertEquals(notes2, myCm.getPastMeeting(mtgId).getNotes());
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addMeetingNotesToNonExistentMeeting() {
+  public void cm_addMeetingNotesToNonexistentMeeting() {
     String label = "TEST_33";
 		System.out.println(label);
+    myCm.addMeetingNotes(mtgId1-1,"notes");
   }
 
   @Test (expected=IllegalStateException.class) 
   public void cm_addMeetingNotesToFutureMeeting() {
     String label = "TEST_34";
 		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int mtgId = myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addMeetingNotes(mtgId, notes);
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_addMeetingNotesWithNullNotes() {
     String label = "TEST_35";
 		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    int mtgId = myCm.addPastMeeting(nameSet, pastDate1, notes);
+    myCm.addMeetingNotes(mtgId, null);
   }
 }
