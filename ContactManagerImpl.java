@@ -97,6 +97,7 @@ public class ContactManagerImpl implements ContactManager {
     return result;
   }
 
+
   public PastMeeting getPastMeeting(int id) {
     //return null;
     PastMeeting result = null;
