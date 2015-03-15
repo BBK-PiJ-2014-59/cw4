@@ -1,5 +1,7 @@
 import java.util.Calendar;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.io.Serializable;
 
 public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable { 
@@ -29,6 +31,14 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
 
     
     return (Arrays.deepEquals(new Integer[]{year1,month1,day1}, (new Integer[]{year2,month2,day2})));
+  }
+
+  public boolean meetingsAreDuplicate(Meeting m1, Meeting m2) { 
+    return true;
+  }
+
+  public List<Meeting> dedupeMeetingList(List<Meeting> list) { 
+    return null;
   }
 
 }

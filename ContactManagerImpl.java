@@ -163,6 +163,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     return result;
 	}
 
+
   public List<PastMeeting> getPastMeetingList(Contact contact) {
     //return null;
     if (!contacts.contains(contact))

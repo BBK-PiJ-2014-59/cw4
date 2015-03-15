@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -123,16 +124,16 @@ public class ContactManagerTests {
 
     badContact = new ContactImpl("name", "notes", firstContactId-1); 
 
-    private int noon = 12; 
+    int noon = 12; 
 
     futureDate1 = Calendar.getInstance();
     futureDate1.add(Calendar.MONTH, 1);
     futureDate1.add(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
 
-    futureDate1Plus1Hr = futureDate1.clone();
-    futureDate1Plus1Hr.add(HOUR, 1);
-    futureDate1Plus2Hr = futureDate1.clone();
-    futureDate1Plus2Hr.add(HOUR, 2);
+    futureDate1Plus1Hr = (Calendar) futureDate1.clone();
+    futureDate1Plus1Hr.add(Calendar.HOUR, 1);
+    futureDate1Plus2Hr = (Calendar) futureDate1.clone();
+    futureDate1Plus2Hr.add(Calendar.HOUR, 2);
 
     futureDate2 = Calendar.getInstance();
     futureDate2.add(Calendar.MONTH, 2);
@@ -623,10 +624,66 @@ public class ContactManagerTests {
     assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
   }
 
-  @Test
-  public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
+  @Test 
+  public void util_meetingsAreDuplicate() {
     // Two meetings are assumed here to be duplicate if they happen on the same date, at the same time and
     // involve the same contacts. 
+    String label = "TEST_19.55";
+		System.out.println(label);
+    Contact c1 = new ContactImpl("name1", notes, 100); 
+    Contact c2 = new ContactImpl("name2", notes, 101); 
+    Set<Contact> set = new HashSet<Contact>();
+    Set<Contact> set2 = new HashSet<Contact>();
+    set.add(c1);
+    set.add(c2);
+    set2.add(c1);
+    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set); 
+    Meeting m2 = new FutureMeetingImpl(101, futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(102, futureDate1, set2); 
+    assertTrue(util.meetingsAreDuplicate(m1, m2));
+    assertFalse(util.meetingsAreDuplicate(m1, m3));
+  }
+  
+  public void util_dedupeMeetingList() {
+    String label = "TEST_19.57";
+		System.out.println(label);
+    Contact c1 = new ContactImpl("name1", notes, 100); 
+    Contact c2 = new ContactImpl("name2", notes, 101); 
+    Set<Contact> set = new HashSet<Contact>();
+    Set<Contact> set2 = new HashSet<Contact>();
+    set.add(c1);
+    set.add(c2);
+    set2.add(c1);
+    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(101, futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(102, futureDate1, set2); 
+    List<Meeting> list = new ArrayList<Meeting>();
+    list.add(m1);
+    list.add(m2);
+    list.add(m3);
+    List<Meeting> dedupedList = new ArrayList<Meeting>();
+    dedupedList.add(m1);
+    dedupedList.add(m3);
+    List<Meeting> newList = util.dedupeMeetingList(list);
+    assertEquals(dedupedList, newList);
+  }
+  
+  @Test (expected=IllegalArgumentException.class) 
+  public void util_dedupeMeetingListPassedEmptyList() {
+    String label = "TEST_19.58";
+		System.out.println(label);
+    util.dedupeMeetingList(new ArrayList<Meeting>());
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void util_dedupeMeetingListPassedNull() {
+    String label = "TEST_19.59";
+		System.out.println(label);
+    util.dedupeMeetingList(null);
+  }
+
+  @Test
+  public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
     String label = "TEST_19.6";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
@@ -858,7 +915,7 @@ public class ContactManagerTests {
     myCm.addNewPastMeeting(nameSet, futureDate1, notes);
     myCm.addNewPastMeeting(nameSet, futureDate1, notes);
     Contact contact1 = (Contact) name1Set.toArray()[0];
-    List<Meeting> list = myCm.getPastMeetingList(contact1);
+    List<PastMeeting> list = myCm.getPastMeetingList(contact1);
     assertEquals(1, list.size());
   }
 
@@ -886,7 +943,7 @@ public class ContactManagerTests {
     myCm.addNewPastMeeting(nameSet, pastDate1, notes);
     myCm.addNewPastMeeting(nameSet, pastDate3, notes);
     Contact contact1 = (Contact) nameSet.toArray()[0];
-    List<Meeting> list = myCm.getPastMeetingList(contact1);
+    List<PastMeeting> list = myCm.getPastMeetingList(contact1);
     assertTrue(list.get(0).getDate().before(list.get(1).getDate()));
     assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
   }
