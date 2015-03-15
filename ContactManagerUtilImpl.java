@@ -1,4 +1,5 @@
 import java.util.Calendar;
+import java.util.Arrays;
 
 public class ContactManagerUtilImpl implements ContactManagerUtil { 
 
@@ -13,6 +14,20 @@ public class ContactManagerUtilImpl implements ContactManagerUtil {
   }
 
   public boolean areSameDay(Calendar date1, Calendar date2) { 
-    return true;
+    int year1 = date1.get(Calendar.YEAR);
+    int month1 = date1.get(Calendar.MONTH);
+    int day1 = date1.get(Calendar.DAY_OF_MONTH);
+
+    //System.out.println("year1: " + year1 + " month1: " + month1 + " day1: " + day1); 
+
+    int year2 = date2.get(Calendar.YEAR);
+    int month2 = date2.get(Calendar.MONTH);
+    int day2 = date2.get(Calendar.DAY_OF_MONTH);
+
+    //System.out.println("year2: " + year2 + " month2: " + month2 + " day2: " + day2); 
+
+    
+    return (Arrays.deepEquals(new Integer[]{year1,month1,day1}, (new Integer[]{year2,month2,day2})));
   }
+
 }

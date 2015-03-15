@@ -164,10 +164,23 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
-
+    
 	}
 
   public void addMeetingNotes(int id, String text) {
+    if (text == null)
+      throw new NullPointerException("Notes added to meeting can't be null.");
+    Meeting m = null;
+    try {
+      m = getPastMeeting(id); 
+    } catch (IllegalArgumentException ex) {
+      throw new IllegalStateException("Can't add notes to a future meeting.");
+    }
+    if (m == null) { 
+      throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
+    }
+    Meeting newMtg = new PastMeetingImpl(id, m.getDate(), m.getContacts(), text);   
+    m = newMtg;
 	}
 
   public void addNewContact(String name, String notes) {
