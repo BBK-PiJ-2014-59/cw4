@@ -17,7 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 
-public class ContactManagerImpl implements ContactManager { 
+public class ContactManagerImpl implements ContactManager, Serializable { 
 
   //private static final String textfile = "contacts.txt";
   private ContactManagerUtil util = new ContactManagerUtilImpl();

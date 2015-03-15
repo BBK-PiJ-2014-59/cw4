@@ -1,7 +1,8 @@
 import java.util.Calendar;
 import java.util.Arrays;
+import java.io.Serializable;
 
-public class ContactManagerUtilImpl implements ContactManagerUtil { 
+public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable { 
 
   public boolean isFuture(Calendar date) { 
     Calendar now = Calendar.getInstance();

@@ -1,4 +1,6 @@
-public class ContactImpl implements Contact { 
+import java.io.Serializable;
+
+public class ContactImpl implements Contact, Serializable { 
   private final int id; // uniqueness to be managed by ContactManager
   //static int nextId = 100;
   private final String name;

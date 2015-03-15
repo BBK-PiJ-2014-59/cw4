@@ -10,6 +10,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
 
 
 
@@ -245,27 +251,48 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void getSameNumberOfContactsBackAfterFlush() {
+    String label = "TEST_6.5";
+		System.out.println(label);
+    ContactManagerTests.deleteFile(textfile);
+    //ContactManagerUI ui = new ContactManagerUIImpl();
+    ContactManager cm = myCmui.launch(); 
+    cm.addNewContact(name1, notes); 
+    cm.addNewContact(name2, notes); 
+    cm.addNewContact(name3, notes); 
+    Set<Contact> cmContacts = cm.getContacts(""); 
+    cm.flush();
+    //ContactManager cm2 = new ContactManagerUIImpl(textfile).launch();
+    ContactManager cm2 = new ContactManagerUIImpl().launch();
+    Set<Contact> cm2Contacts = cm2.getContacts(""); 
+    assertEquals(cmContacts.size(), cm2Contacts.size());
+  }
+
+  @Test
   public void getSameContactsBackAfterFlush() {
     String label = "TEST_7";
 		System.out.println(label);
-    String testfile = "" + textfile + "." + label;
-    ContactManagerTests.deleteFile(testfile);
-    ContactManagerUI ui = new ContactManagerUIImpl(testfile);
+    //String testfile = "" + textfile + "." + label;
+    //ContactManagerTests.deleteFile(testfile);
+    ContactManagerTests.deleteFile(textfile);
+    //ContactManagerUI ui = new ContactManagerUIImpl(testfile);
+    ContactManagerUI ui = new ContactManagerUIImpl(textfile);
     ContactManager cm = ui.launch();
     cm.addNewContact(name1, notes); 
     cm.addNewContact(name2, notes); 
     cm.addNewContact(name3, notes); 
     Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2,name3));
-    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1,firstContactId+2));
-    ContactManagerTests.copyFile(testfile,"save");
+    //Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1,firstContactId+2));
+    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(contactId1,contactId2,contactId3));
+    //ContactManagerTests.copyFile(testfile,"save");
     cm.flush();
     //ContactManager cm2 = new ContactManagerImpl(testfile);
-    ContactManagerUI ui2 = new ContactManagerUIImpl(testfile);
+    ContactManagerUI ui2 = new ContactManagerUIImpl();
     ContactManager cm2 = ui.launch();
 
-    // check names, notes, IDs
-    Set<Contact> s = cm2.getContacts("");   
-    Iterator<Contact> i = s.iterator();
+    // check names and IDs
+    Set<Contact> allCm2Contacts = cm2.getContacts("");   
+    Iterator<Contact> i = allCm2Contacts.iterator();
     Set<String> namesAfter = new HashSet<String>();
     Set<Integer> idsAfter = new HashSet<Integer>();
     Contact c = null;
@@ -279,16 +306,58 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void flushCreatesFileWithContactManagerObject() { 
+    String label = "TEST_7.5";
+		System.out.println(label);
+    //String testfile = "" + textfile + "." + label;
+    ContactManagerTests.deleteFile(textfile);
+    ContactManager cm = new ContactManagerImpl();
+    ContactManager cm2 = null;
+
+    cm.flush();
+
+    FileInputStream fis = null;
+    ObjectInputStream in = null;
+    try {
+      fis = new FileInputStream(textfile);
+      in = new ObjectInputStream(fis);
+      cm2 = (ContactManager) in.readObject();
+      in.close();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    assertTrue(cm2 instanceof ContactManager);
+  }
+
+  @Test
+  public void launchAfterFlushStartingWithNoContactsTxtFileReturnsContactManager() { 
+    String label = "TEST_7.55";
+		System.out.println(label);
+
+    ContactManagerTests.deleteFile(textfile);
+    ContactManager cm = new ContactManagerImpl();
+    cm.flush();
+    ContactManager cm2 = new ContactManagerUIImpl().launch();
+    assertTrue(cm2 instanceof ContactManager);
+    //assertEquals(cm, cm2);
+  }
+
+/*
+  @Test
   public void uiLaunchReturnsContactManager() { 
-    String label = "TEST_7.001";
+    String label = "TEST_7.6";
+		System.out.println(label);
     String testfile = "" + textfile + "." + label;
     ContactManagerTests.deleteFile(testfile);
     assertTrue(new ContactManagerUIImpl(testfile).launch() instanceof ContactManager);
   }
+*/
 
+/*
   @Test
   public void flushAfterStartingWithMissingTestfileCreatesIt() { 
-    String label = "TEST_7.01";
+    String label = "TEST_7.7";
 		System.out.println(label);
     String testfile = "" + textfile + "." + label;
     ContactManagerTests.deleteFile(testfile);
@@ -299,40 +368,25 @@ public class ContactManagerTests {
     cm.flush();
     assertTrue(new File(testfile).exists());
   }
+*/
 
   @Test
   public void nextContactIdIsIncrementedIfAddedAfterFlush() {
-    String label = "TEST_7.1";
+    String label = "TEST_8";
 		System.out.println(label);
-    String testfile = "" + textfile + "." + label;
-    ContactManagerTests.deleteFile(testfile);
-    ContactManagerUI ui = new ContactManagerUIImpl(testfile);
-    ContactManager cm = ui.launch();
+    ContactManagerTests.deleteFile(textfile);
+    ContactManager cm = myCmui.launch();
     cm.addNewContact(name1, notes); 
     cm.addNewContact(name2, notes); 
     Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2));
-    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(firstContactId,firstContactId+1));
+    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(contactId1,contactId2));
     cm.flush();
-    ContactManagerTests.copyFile(testfile,"save");
-    ContactManagerUI ui2 = new ContactManagerUIImpl(testfile);
+    ContactManagerUI ui2 = new ContactManagerUIImpl();
     ContactManager cm2 = ui2.launch();
     cm2.addNewContact(name3, "BLAHNOTES"); 
-    // check names, notes, IDs
-    Set<Contact> s = cm2.getContacts("");   
-    for (Contact con : s) { 
-      System.out.println("CONCON");
-    }
-    Iterator<Contact> i = s.iterator();
-    Set<Integer> idsAfter = new HashSet<Integer>();
-    Contact c = null;
-    while (i.hasNext()) { 
-      System.out.println("YODA");
-      c = i.next();
-      idsAfter.add(c.getId()); 
-    }
-    cm2.flush();
-    ContactManagerTests.copyFile(testfile,"save.cm2");
-    assertTrue(idsAfter.equals(idsBefore)); 
+    Set<Contact> name3Set = cm2.getContacts(name3);
+    Contact contact3 = (Contact) name3Set.toArray()[0];
+    assertEquals(contactId3, contact3.getId());
   }
 
   @Test (expected=NullPointerException.class) 

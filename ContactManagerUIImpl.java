@@ -43,34 +43,24 @@ public class ContactManagerUIImpl implements ContactManagerUI {
     }
   }
 
-/*
   public ContactManager launch() { 
-    if (filename == null)
-      throw new NullPointerException();
-    ContactManager result;
-    //File f = new File(filename);
-    //if (f.exists() && !f.isDirectory()) {
-      result = new ContactManagerImpl(filename);
-    //} else {
-     // result = new ContactManagerImpl();
-    //}
-    return result;
-  }
-*/
-
-  public ContactManager launch() { 
+    System.out.println("LAUNCH");
     if (filename == null)
       throw new NullPointerException();
     ContactManager result = null;
     FileInputStream fis = null;
     ObjectInputStream in = null;
-    try { 
-      fis = new FileInputStream(filename);
-      in = new ObjectInputStream(fis);
-      result = (ContactManager) in.readObject();
-      in.close();
-    } catch (Exception ex) { 
-      ex.printStackTrace();
+    if (new File(filename).exists()) {
+      try { 
+        fis = new FileInputStream(filename);
+        in = new ObjectInputStream(fis);
+        result = (ContactManager) in.readObject();
+        in.close();
+      } catch (Exception ex) { 
+        ex.printStackTrace();
+      }
+    } else {
+      result = new ContactManagerImpl();
     }
     return result;
   }
