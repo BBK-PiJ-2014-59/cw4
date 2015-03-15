@@ -99,12 +99,15 @@ public class ContactManagerImpl implements ContactManager {
 
   public PastMeeting getPastMeeting(int id) {
     //return null;
-    PastMeeting result;
+    PastMeeting result = null;
     Meeting m = getMeeting(id);
-    if (util.isPast(m.getDate()))
-      result = (PastMeeting) m; 
-    else
-      throw new IllegalArgumentException("Meeting " + id + " is in the future.");
+    if (m != null) { 
+      if (util.isPast(m.getDate()))
+        result = (PastMeeting) m; 
+      else
+        throw new IllegalArgumentException("Meeting " + id + " is in the future.");
+
+    }
     return result;
 	}
 
@@ -163,8 +166,20 @@ public class ContactManagerImpl implements ContactManager {
     return null;
 	}
 
-  public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
-    
+  public void addNewPastMeeting(Set<Contact> sc, Calendar date, String text) {
+    Calendar rightNow = Calendar.getInstance();
+    if (date.after(rightNow)) {
+      throw new IllegalArgumentException("Date must be in the past.");
+    }
+    if (!allContactsExist(sc) || sc.size() == 0) {
+      throw new IllegalArgumentException("Nonexistent contact.");
+    }
+    if (contacts == null || date == null || text == null) { 
+      throw new NullPointerException("null argument passed in.");
+    }
+    int id = nextMtgId++;
+    PastMeeting pm = new PastMeetingImpl(id, date, sc, text);
+    meetings.add(pm);
 	}
 
   public void addMeetingNotes(int id, String text) {
@@ -173,11 +188,11 @@ public class ContactManagerImpl implements ContactManager {
     Meeting m = null;
     try {
       m = getPastMeeting(id); 
+      if (m == null) { 
+        throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
+      }
     } catch (IllegalArgumentException ex) {
       throw new IllegalStateException("Can't add notes to a future meeting.");
-    }
-    if (m == null) { 
-      throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
     }
     Meeting newMtg = new PastMeetingImpl(id, m.getDate(), m.getContacts(), text);   
     m = newMtg;

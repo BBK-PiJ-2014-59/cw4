@@ -17,6 +17,7 @@ public class ContactManagerTests {
 
   private final String textfile = "contacts.txt";
   private final int firstMtgId = 100;
+  private final int badMtgId = firstMtgId-1;
   private final int mtgId1 = firstMtgId;
   private final int mtgId2 = firstMtgId+1;
   private final int mtgId3 = firstMtgId+2;
@@ -709,6 +710,20 @@ public class ContactManagerTests {
     myCm.getPastMeetingList(badContact);
   }
 
+  @Test
+  public void cm_getPastMeetingForNonexistentIdReturnsNull() {
+    String label = "TEST_28.5";
+		System.out.println(label);
+    assertNull(myCm.getPastMeeting(badMtgId));
+  }
+
+  @Test
+  public void cm_getMeetingForNonexistentIdReturnsNull() {
+    String label = "TEST_28.6";
+		System.out.println(label);
+    assertNull(myCm.getMeeting(badMtgId));
+  }
+
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addNewPastMeetingNoContacts() {
     String label = "TEST_29";
@@ -784,7 +799,7 @@ public class ContactManagerTests {
   public void cm_addMeetingNotesToNonexistentMeeting() {
     String label = "TEST_33";
 		System.out.println(label);
-    myCm.addMeetingNotes(mtgId1-1,"notes");
+    myCm.addMeetingNotes(mtgId1-1, notes);
   }
 
   @Test (expected=IllegalStateException.class) 
