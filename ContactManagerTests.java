@@ -42,6 +42,10 @@ public class ContactManagerTests {
   private Calendar pastDate1;
   private Calendar pastDate2;
   private Calendar pastDate3;
+  private Calendar futureDate1Copy1;
+  private Calendar futureDate1Copy2;
+  private Calendar futureDate1Plus1Hr;
+  private Calendar futureDate1Plus2Hr;
 
   private final String name1 = "name1";
   private final String name2 = "name2";
@@ -119,29 +123,37 @@ public class ContactManagerTests {
 
     badContact = new ContactImpl("name", "notes", firstContactId-1); 
 
+    private int noon = 12; 
+
     futureDate1 = Calendar.getInstance();
     futureDate1.add(Calendar.MONTH, 1);
-    futureDate1.add(Calendar.HOUR_OF_DAY, 12); // in case tests are run at midnight
+    futureDate1.add(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
+
+    futureDate1Plus1Hr = futureDate1.clone();
+    futureDate1Plus1Hr.add(HOUR, 1);
+    futureDate1Plus2Hr = futureDate1.clone();
+    futureDate1Plus2Hr.add(HOUR, 2);
 
     futureDate2 = Calendar.getInstance();
     futureDate2.add(Calendar.MONTH, 2);
-    futureDate2.add(Calendar.HOUR_OF_DAY, 12); 
+    futureDate2.add(Calendar.HOUR_OF_DAY, noon); 
 
     futureDate3 = Calendar.getInstance();
     futureDate3.add(Calendar.MONTH, 3);
-    futureDate3.add(Calendar.HOUR_OF_DAY, 12); 
+    futureDate3.add(Calendar.HOUR_OF_DAY, noon); 
+
 
     pastDate1 = Calendar.getInstance();
     pastDate1.add(Calendar.MONTH, -3);
-    pastDate1.add(Calendar.HOUR_OF_DAY, 12); // in case tests are run at midnight
+    pastDate1.add(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
 
     pastDate2 = Calendar.getInstance();
     pastDate2.add(Calendar.MONTH, -2);
-    pastDate2.add(Calendar.HOUR_OF_DAY, 12); 
+    pastDate2.add(Calendar.HOUR_OF_DAY, noon); 
 
     pastDate3 = Calendar.getInstance();
     pastDate3.add(Calendar.MONTH, -1);
-    pastDate3.add(Calendar.HOUR_OF_DAY, 12); 
+    pastDate3.add(Calendar.HOUR_OF_DAY, noon); 
   }
 
   @Before 
@@ -587,13 +599,45 @@ public class ContactManagerTests {
     // Create a meeting with contact "1" but search for contact "2"
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
-    Set<Contact> nameSet1 = myCm.getContacts("name1");
-    myCm.addFutureMeeting(nameSet1, futureDate1);
-    Set<Contact> nameSet2 = myCm.getContacts("name2");
-    Contact contact2 = (Contact) nameSet2.toArray()[0];
+    Set<Contact> name1Set = myCm.getContacts("name1");
+    myCm.addFutureMeeting(name1Set, futureDate1);
+    Set<Contact> name2Set = myCm.getContacts("name2");
+    Contact contact2 = (Contact) name2Set.toArray()[0];
     List<Meeting> mtgListContact2 = myCm.getFutureMeetingList(contact2);
-    assertEquals(1, nameSet2.size());
+    assertEquals(1, name2Set.size());
     assertEquals(0, mtgListContact2.size());
+  }
+
+  @Test
+  public void cm_getFutureMeetingListByContactReturnsChronologically() {
+    String label = "TEST_19.5";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    myCm.addFutureMeeting(nameSet, futureDate2);
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addFutureMeeting(nameSet, futureDate3);
+    Contact contact1 = (Contact) nameSet.toArray()[0];
+    List<Meeting> list = myCm.getFutureMeetingList(contact1);
+    assertTrue(list.get(0).getDate().before(list.get(1).getDate()));
+    assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
+  }
+
+  @Test
+  public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
+    // Two meetings are assumed here to be duplicate if they happen on the same date, at the same time and
+    // involve the same contacts. 
+    String label = "TEST_19.6";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    Set<Contact> name1Set = myCm.getContacts(name1);
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    Contact contact1 = (Contact) name1Set.toArray()[0];
+    List<Meeting> list = myCm.getFutureMeetingList(contact1);
+    assertEquals(1, list.size());
   }
 
   @Test
@@ -611,13 +655,13 @@ public class ContactManagerTests {
 
     // add meeting without contact 1:
 
-    Set<Contact> nameSet2 = myCm.getContacts("name2");
-    myCm.addFutureMeeting(nameSet2, futureDate1);
+    Set<Contact> name2Set = myCm.getContacts("name2");
+    myCm.addFutureMeeting(name2Set, futureDate1);
 
     // search for meetings with contact 1:
 
-    Set<Contact> nameSet1 = myCm.getContacts("name1");
-    Contact contact1 = (Contact) nameSet1.toArray()[0];
+    Set<Contact> name1Set = myCm.getContacts("name1");
+    Contact contact1 = (Contact) name1Set.toArray()[0];
     List<Meeting> list = myCm.getFutureMeetingList(contact1);
 
     assertEquals(1, list.size());
@@ -643,6 +687,43 @@ public class ContactManagerTests {
     List<Meeting> list = myCm.getFutureMeetingList(futureDate1);
     assertEquals(1, list.size());
     assertEquals(mtgId, list.get(0).getId());
+  }
+
+  @Test
+  public void cm_getFutureMeetingListByDateReturnsChronologically() {
+    String label = "TEST_22.5";
+		System.out.println(label);
+
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+
+    Set<Contact> name1Set = myCm.getContacts(name1);
+    Set<Contact> name2Set = myCm.getContacts(name2);
+
+    myCm.addFutureMeeting(name2Set, futureDate1Plus1Hr);
+    myCm.addFutureMeeting(name1Set, futureDate1);
+    myCm.addFutureMeeting(name1Set, futureDate1Plus2Hr);
+
+    List<Meeting> list = myCm.getFutureMeetingList(futureDate1);
+    assertTrue(list.get(0).getDate().before(list.get(1).getDate()));
+    assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
+  }
+
+  @Test
+  public void cm_getFutureMeetingListByDateReturnsNoDuplicates() {
+    // Two meetings are assumed here to be duplicate if they happen on the same date, at the same time and
+    // involve the same contacts. 
+    String label = "TEST_22.7";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    Set<Contact> name1Set = myCm.getContacts(name1);
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    myCm.addFutureMeeting(nameSet, futureDate1);
+    Contact contact1 = (Contact) name1Set.toArray()[0];
+    List<Meeting> list = myCm.getFutureMeetingList(futureDate1);
+    assertEquals(1, list.size());
   }
 
   @Test
@@ -714,12 +795,12 @@ public class ContactManagerTests {
     // Create a meeting with contact "1" but search for contact "2"
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
-    Set<Contact> nameSet1 = myCm.getContacts("name1");
-    myCm.addNewPastMeeting(nameSet1, pastDate1, notes);
-    Set<Contact> nameSet2 = myCm.getContacts("name2");
-    Contact contact2 = (Contact) nameSet2.toArray()[0];
+    Set<Contact> name1Set = myCm.getContacts("name1");
+    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
+    Set<Contact> name2Set = myCm.getContacts("name2");
+    Contact contact2 = (Contact) name2Set.toArray()[0];
     List<PastMeeting> list = myCm.getPastMeetingList(contact2);
-    assertEquals(1, nameSet2.size());
+    assertEquals(1, name2Set.size());
     assertEquals(0, list.size());
   }
 
@@ -765,6 +846,23 @@ public class ContactManagerTests {
   }
 
   @Test
+  public void cm_getPastMeetingListByContactReturnsNoDuplicates() {
+    // Two past meetings are assumed here to be duplicate if they happen on the same date, at the same time and
+    // involve the same contacts and have the same notes.
+    String label = "TEST_28.3";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    myCm.addNewContact(name2, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    Set<Contact> name1Set = myCm.getContacts(name1);
+    myCm.addNewPastMeeting(nameSet, futureDate1, notes);
+    myCm.addNewPastMeeting(nameSet, futureDate1, notes);
+    Contact contact1 = (Contact) name1Set.toArray()[0];
+    List<Meeting> list = myCm.getPastMeetingList(contact1);
+    assertEquals(1, list.size());
+  }
+
+  @Test
   public void cm_getPastMeetingForNonexistentIdReturnsNull() {
     String label = "TEST_28.5";
 		System.out.println(label);
@@ -776,6 +874,21 @@ public class ContactManagerTests {
     String label = "TEST_28.6";
 		System.out.println(label);
     assertNull(myCm.getMeeting(badMtgId));
+  }
+
+  @Test
+  public void cm_getPastMeetingListByContactReturnsChronologically() {
+    String label = "TEST_28.7";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    myCm.addNewPastMeeting(nameSet, pastDate2, notes);
+    myCm.addNewPastMeeting(nameSet, pastDate1, notes);
+    myCm.addNewPastMeeting(nameSet, pastDate3, notes);
+    Contact contact1 = (Contact) nameSet.toArray()[0];
+    List<Meeting> list = myCm.getPastMeetingList(contact1);
+    assertTrue(list.get(0).getDate().before(list.get(1).getDate()));
+    assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
   }
 
   @Test (expected=IllegalArgumentException.class) 
