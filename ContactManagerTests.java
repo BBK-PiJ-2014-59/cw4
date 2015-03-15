@@ -799,7 +799,7 @@ public class ContactManagerTests {
   public void cm_addMeetingNotesToNonexistentMeeting() {
     String label = "TEST_33";
 		System.out.println(label);
-    myCm.addMeetingNotes(mtgId1-1, notes);
+    myCm.addMeetingNotes(badMtgId, notes);
   }
 
   @Test (expected=IllegalStateException.class) 

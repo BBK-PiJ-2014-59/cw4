@@ -196,17 +196,18 @@ public class ContactManagerImpl implements ContactManager {
   public void addMeetingNotes(int id, String text) {
     if (text == null)
       throw new NullPointerException("Notes added to meeting can't be null.");
-    Meeting m = null;
+    Meeting oldMtg = null;
     try {
-      m = getPastMeeting(id); 
-      if (m == null) { 
-        throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
-      }
+      oldMtg = getPastMeeting(id); 
     } catch (IllegalArgumentException ex) {
       throw new IllegalStateException("Can't add notes to a future meeting.");
     }
-    Meeting newMtg = new PastMeetingImpl(id, m.getDate(), m.getContacts(), text);   
-    m = newMtg;
+    if (oldMtg == null) { 
+      throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
+    }
+    Meeting newMtg = new PastMeetingImpl(id, oldMtg.getDate(), oldMtg.getContacts(), text);   
+    meetings.remove(oldMtg);
+    meetings.add(newMtg);
 	}
 
   public void addNewContact(String name, String notes) {
