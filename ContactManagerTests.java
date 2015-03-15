@@ -663,8 +663,8 @@ public class ContactManagerTests {
     Set<Contact> nameSet1 = myCm.getContacts("name1");
     myCm.addNewPastMeeting(nameSet1, pastDate1, notes);
     Set<Contact> nameSet2 = myCm.getContacts("name2");
-    Contact c = (Contact) nameSet2.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    Contact contact2 = (Contact) nameSet2.toArray()[0];
+    List<PastMeeting> list = myCm.getPastMeetingList(contact2);
     assertEquals(1, nameSet2.size());
     assertEquals(0, list.size());
   }

@@ -164,7 +164,17 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
-    return null;
+    //return null;
+    if (!contacts.contains(contact))
+      throw new IllegalArgumentException("Contact doesn't exist.");
+    List<PastMeeting> result = new ArrayList<PastMeeting>();
+    Iterator<Meeting> i = meetings.iterator();
+    while (i.hasNext()) { 
+      Meeting m = i.next();
+      if (util.isPast(m.getDate()) && m.getContacts().contains(contact)) 
+        result.add((PastMeeting)m);
+    }
+    return result;
 	}
 
   public void addNewPastMeeting(Set<Contact> sc, Calendar date, String text) {
