@@ -52,5 +52,7 @@ public interface ContactManagerUtil {
     * @throws NullPointerException if null list is passed.
     * @throws IllegalArgumentException if an empty list is passed.
     */
-  List<Meeting> dedupeMeetingList(List<Meeting> list);
+  <T extends Meeting> List<T> dedupeMeetingList(List<T> list);
+  //List<Meeting> dedupeMeetingList(List<? extends Meeting> list);
+  //List<Meeting> dedupeMeetingList(List<Meeting> list);
 }

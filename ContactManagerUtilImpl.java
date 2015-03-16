@@ -1,6 +1,9 @@
 import java.util.Calendar;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.io.Serializable;
 
@@ -34,11 +37,32 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
   }
 
   public boolean meetingsAreDuplicate(Meeting m1, Meeting m2) { 
-    return true;
+    if (m1.getDate().equals(m2.getDate()) && m1.getContacts().equals(m2.getContacts()))
+      return true;
+    else return false;
   }
 
-  public List<Meeting> dedupeMeetingList(List<Meeting> list) { 
-    return null;
+  //public List<Meeting> dedupeMeetingList(List<Meeting> list) { 
+  //public List<Meeting> dedupeMeetingList(List<? extends Meeting> list) { 
+  public <T extends Meeting> List<T> dedupeMeetingList(List<T> list) { 
+    if (list.size() == 0)
+      throw new IllegalArgumentException("Can't dedupe an empty list.");
+    if (list == null)
+      throw new NullPointerException("Can't dedupe a null list.");
+    Set<Meeting> remove = new HashSet<Meeting>();
+    for (int i=0; i<list.size()-1; i++) { 
+      for (int j=i+1; j<list.size(); j++) { 
+        if (meetingsAreDuplicate(list.get(i), list.get(j)))
+          if (list.get(i).getId() < list.get(j).getId())
+            remove.add(list.get(i));
+          else
+            remove.add(list.get(j));
+      }
+    }
+    Iterator<Meeting> i = remove.iterator();
+    while (i.hasNext())
+      list.remove(i.next());
+    return list;
   }
 
 }

@@ -147,6 +147,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       if (m.getContacts().contains(contact)) 
         result.add(m);
     }
+    if (result.size() != 0)
+      result = util.dedupeMeetingList(result);
     return result;
 	}
 
@@ -160,9 +162,10 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       if (util.areSameDay(date,m.getDate())) 
         result.add(m);
     }
+    if (result.size() != 0)
+      result = util.dedupeMeetingList(result);
     return result;
 	}
-
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
     //return null;
@@ -175,6 +178,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       if (util.isPast(m.getDate()) && m.getContacts().contains(contact)) 
         result.add((PastMeeting)m);
     }
+    if (result.size() != 0)
+      result = util.dedupeMeetingList(result);
     return result;
 	}
 
