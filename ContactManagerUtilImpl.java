@@ -42,8 +42,6 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
     else return false;
   }
 
-  //public List<Meeting> dedupeMeetingList(List<Meeting> list) { 
-  //public List<Meeting> dedupeMeetingList(List<? extends Meeting> list) { 
   public <T extends Meeting> List<T> dedupeMeetingList(List<T> list) { 
     if (list.size() == 0)
       throw new IllegalArgumentException("Can't dedupe an empty list.");
@@ -63,6 +61,10 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
     while (i.hasNext())
       list.remove(i.next());
     return list;
+  }
+
+  public <T extends Meeting> List<T> sortMeetingList(List<T> list) { 
+    return null;
   }
 
 }

@@ -609,6 +609,7 @@ public class ContactManagerTests {
     assertEquals(0, mtgListContact2.size());
   }
 
+
   @Test
   public void cm_getFutureMeetingListByContactReturnsChronologically() {
     String label = "TEST_19.5";
@@ -645,7 +646,7 @@ public class ContactManagerTests {
   }
   
   public void util_dedupeMeetingList() {
-    String label = "TEST_19.57";
+    String label = "TEST_19.55";
 		System.out.println(label);
     Contact c1 = new ContactImpl("name1", notes, 100); 
     Contact c2 = new ContactImpl("name2", notes, 101); 
@@ -667,24 +668,41 @@ public class ContactManagerTests {
     List<Meeting> newList = util.dedupeMeetingList(list);
     assertEquals(dedupedList, newList);
   }
+
   
   @Test (expected=IllegalArgumentException.class) 
   public void util_dedupeMeetingListPassedEmptyList() {
-    String label = "TEST_19.58";
+    String label = "TEST_19.6";
 		System.out.println(label);
     util.dedupeMeetingList(new ArrayList<Meeting>());
   }
 
   @Test (expected=NullPointerException.class) 
   public void util_dedupeMeetingListPassedNull() {
-    String label = "TEST_19.59";
+    String label = "TEST_19.7";
 		System.out.println(label);
     util.dedupeMeetingList(null);
   }
 
   @Test
+  public void util_sortMeetingList() {
+    String label = "TEST_19.75";
+		System.out.println(label);
+    Contact c1 = new ContactImpl("name1", notes, 100); 
+    Set<Contact> set = new HashSet<Contact>();
+    set.add(c1);
+    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(101, futureDate2, set);
+    List<Meeting> list = new ArrayList<Meeting>();
+    list.add(m2);
+    list.add(m1);
+    list = util.sortMeetingList(list);
+    assertEquals(m1, list.get(0));
+  }
+
+  @Test
   public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
-    String label = "TEST_19.6";
+    String label = "TEST_19.8";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);

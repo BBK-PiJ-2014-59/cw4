@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -149,6 +150,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
+    //result = util.sortMeetingList(result);
     return result;
 	}
 
