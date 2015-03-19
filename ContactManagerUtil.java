@@ -58,9 +58,8 @@ public interface ContactManagerUtil {
     * Sorts a list of meetings by date.
     *
     * @param list a list of meetings. 
-    * @return a sorted list of meetings. 
     * @throws NullPointerException if null list is passed.
     * @throws IllegalArgumentException if an empty list is passed.
     */
-  <T extends Meeting> List<T> sortMeetingList(List<T> list);
+  <T extends Meeting> void sortMeetingList(List<T> list);
 }

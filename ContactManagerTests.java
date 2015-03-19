@@ -128,7 +128,7 @@ public class ContactManagerTests {
 
     futureDate1 = Calendar.getInstance();
     futureDate1.add(Calendar.MONTH, 1);
-    futureDate1.add(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
+    futureDate1.set(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
 
     futureDate1Plus1Hr = (Calendar) futureDate1.clone();
     futureDate1Plus1Hr.add(Calendar.HOUR, 1);
@@ -137,24 +137,24 @@ public class ContactManagerTests {
 
     futureDate2 = Calendar.getInstance();
     futureDate2.add(Calendar.MONTH, 2);
-    futureDate2.add(Calendar.HOUR_OF_DAY, noon); 
+    futureDate2.set(Calendar.HOUR_OF_DAY, noon); 
 
     futureDate3 = Calendar.getInstance();
     futureDate3.add(Calendar.MONTH, 3);
-    futureDate3.add(Calendar.HOUR_OF_DAY, noon); 
+    futureDate3.set(Calendar.HOUR_OF_DAY, noon); 
 
 
     pastDate1 = Calendar.getInstance();
     pastDate1.add(Calendar.MONTH, -3);
-    pastDate1.add(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
+    pastDate1.set(Calendar.HOUR_OF_DAY, noon); // in case tests are run at midnight
 
     pastDate2 = Calendar.getInstance();
     pastDate2.add(Calendar.MONTH, -2);
-    pastDate2.add(Calendar.HOUR_OF_DAY, noon); 
+    pastDate2.set(Calendar.HOUR_OF_DAY, noon); 
 
     pastDate3 = Calendar.getInstance();
     pastDate3.add(Calendar.MONTH, -1);
-    pastDate3.add(Calendar.HOUR_OF_DAY, noon); 
+    pastDate3.set(Calendar.HOUR_OF_DAY, noon); 
   }
 
   @Before 
@@ -696,8 +696,16 @@ public class ContactManagerTests {
     List<Meeting> list = new ArrayList<Meeting>();
     list.add(m2);
     list.add(m1);
-    list = util.sortMeetingList(list);
+    util.sortMeetingList(list);
     assertEquals(m1, list.get(0));
+
+    // If dates are the same order shouldn't matter.
+    Meeting m3 = new FutureMeetingImpl(103, futureDate2, set);
+    List<Meeting> list2 = new ArrayList<Meeting>();
+    list2.add(m2);
+    list2.add(m3);
+    list2.add(m1);
+    assertEquals(m1, list2.get(0));
   }
 
   @Test
@@ -751,7 +759,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_getFutureMeetingListForDateReturnsOnlyMeeting() {
+  public void cm_getFutureMeetingListByDateReturnsOnlyMeeting() {
     String label = "TEST_22";
 		System.out.println(label);
 
@@ -802,7 +810,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_getFutureMeetingListForDateReturnsOneOfTwoMeetings() {
+  public void cm_getFutureMeetingListByDateReturnsOneOfTwoMeetings() {
     String label = "TEST_23";
 		System.out.println(label);
 
@@ -832,7 +840,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_getFutureMeetingListForDateReturnsNoMeetings() {
+  public void cm_getFutureMeetingListByDateReturnsNoMeetings() {
     String label = "TEST_24";
 		System.out.println(label);
 
@@ -1045,13 +1053,31 @@ public class ContactManagerTests {
   }
 
   @Test (expected=IllegalStateException.class) 
-  public void cm_addMeetingNotesToFutureMeeting() {
+  public void cm_addMeetingNotesToFutureMeetingThatHasNotHappened() {
     String label = "TEST_34";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> nameSet = myCm.getContacts("name");
     int mtgId = myCm.addFutureMeeting(nameSet, futureDate1);
     myCm.addMeetingNotes(mtgId, notes);
+  }
+
+  @Test
+  public void cm_addMeetingNotesToPastFutureMeeting() {
+    String label = "TEST_34.5";
+		System.out.println(label);
+    myCm.addNewContact(name1, notes);
+    Set<Contact> nameSet = myCm.getContacts("name");
+    Calendar soon = Calendar.getInstance();
+    soon.add(Calendar.SECOND, 1);
+    int mtgId = myCm.addFutureMeeting(nameSet, soon);
+    try {
+      Thread.sleep(2000);
+    } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    myCm.addMeetingNotes(mtgId, notes);
+    assertEquals(notes, myCm.getPastMeeting(mtgId).getNotes());
   }
 
   @Test (expected=NullPointerException.class) 

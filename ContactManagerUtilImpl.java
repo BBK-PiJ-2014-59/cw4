@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.io.Serializable;
 
 public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable { 
@@ -63,8 +65,14 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
     return list;
   }
 
-  public <T extends Meeting> List<T> sortMeetingList(List<T> list) { 
-    return null;
+  public <T extends Meeting> void sortMeetingList(List<T> list) { 
+    Collections.sort(list, new Comparator<Meeting>() { 
+      @Override
+      public int compare(Meeting mtg1, Meeting mtg2) { 
+        //return 0;
+        return mtg1.getDate().compareTo(mtg2.getDate());
+      }
+    });
   }
 
 }
