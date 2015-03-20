@@ -108,6 +108,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
+      util.sortMeetingList(result);
     return result;
 	}
 
@@ -122,6 +123,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
+      util.sortMeetingList(result);
     return result;
 	}
 
@@ -137,6 +139,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
+      util.sortMeetingList(result);
     return result;
 	}
 

@@ -76,7 +76,12 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
       @Override
       public int compare(Meeting mtg1, Meeting mtg2) { 
         //return 0;
-        return mtg1.getDate().compareTo(mtg2.getDate());
+        System.out.println("comparing " + mtg1 + " and " + mtg2);
+        System.out.println(mtg1 + " " + mtg1.getDate());
+        System.out.println(mtg2 + " " + mtg2.getDate());
+        int result = mtg1.getDate().compareTo(mtg2.getDate());
+        System.out.println("result: " + result);
+        return result;
       }
     });
   }
