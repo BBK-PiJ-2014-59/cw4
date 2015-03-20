@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.File;
-//import com.google.gson.Gson;
 import java.io.Serializable;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,14 +19,12 @@ import java.io.ObjectOutputStream;
 
 public class ContactManagerImpl implements ContactManager, Serializable { 
 
-  //private static final String textfile = "contacts.txt";
   private ContactManagerUtil util = new ContactManagerUtilImpl();
   private String textfile = "contacts.txt";
   private static final int FIRSTCONTACTID = 100;
   private int nextContactId = FIRSTCONTACTID;
   private static final int FIRSTMTGID = 100;
   private int nextMtgId = FIRSTMTGID;
-  //private Set<Contact> contacts = new HashSet<Contact>();
   private Set<Contact> contacts;
   private List<Meeting> meetings;
 
@@ -35,43 +32,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     contacts = new HashSet<Contact>();
     meetings = new ArrayList<Meeting>();
   }
-
-/*
-  public ContactManagerImpl() {
-    //Set<Contact> contacts = new HashSet<Contact>();
-    contacts = new HashSet<Contact>();
-    Set<Contact> fileContacts = readInTextfile(textfile);
-    if (fileContacts != null)
-      contacts.addAll(fileContacts);
-  }
-
-  public ContactManagerImpl(String filename) {
-    textfile = filename;
-    contacts = new HashSet<Contact>();
-    Set<Contact> fileContacts = readInTextfile(textfile);
-    if (fileContacts != null)
-      contacts.addAll(fileContacts);
-  }
-*/
-
-/*
-  private Set<Contact> readInTextfile(String filename) { 
-    System.out.println("READING IN " + filename);
-    Gson gson = new Gson();
-    Set<Contact> result = new HashSet<Contact>();;
-    if (new File(filename).exists()) { 
-      try {
-        BufferedReader br = new BufferedReader(
-        new FileReader(filename));
-        result.addAll(gson.fromJson(br, HashSet.class));
-      } catch (IOException e) {
-        e.printStackTrace();
-      } 
-    }
-    return result;
-  }
-*/
-
 
   public int addFutureMeeting(Set<Contact> sc, Calendar date) {
     Calendar rightNow = Calendar.getInstance();
@@ -100,7 +60,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 
 
   public PastMeeting getPastMeeting(int id) {
-    //return null;
     PastMeeting result = null;
     Meeting m = getMeeting(id);
     if (m != null) { 
@@ -138,7 +97,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public List<Meeting> getFutureMeetingList(Contact contact) {
-    //return null;
     if (!contacts.contains(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<Meeting> result = new ArrayList<Meeting>();
@@ -150,13 +108,11 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
-    //result = util.sortMeetingList(result);
     return result;
 	}
 
 
   public List<Meeting> getFutureMeetingList(Calendar date) {
-    //return null;
     List<Meeting> result = new ArrayList<Meeting>();
     Iterator<Meeting> i = meetings.iterator();
     while (i.hasNext()) { 
@@ -170,7 +126,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
-    //return null;
     if (!contacts.contains(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<PastMeeting> result = new ArrayList<PastMeeting>();
@@ -205,15 +160,13 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     if (text == null)
       throw new NullPointerException("Notes added to meeting can't be null.");
     Meeting oldMtg = null;
-    try {
-      oldMtg = getPastMeeting(id); 
-    } catch (IllegalArgumentException ex) {
-      throw new IllegalStateException("Can't add notes to a future meeting.");
-    }
+    oldMtg = getMeeting(id); 
     if (oldMtg == null) { 
       throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
     }
-    Meeting newMtg = new PastMeetingImpl(id, oldMtg.getDate(), oldMtg.getContacts(), text);   
+    if (oldMtg.getDate().after(Calendar.getInstance())) 
+      throw new IllegalStateException("Can't add notes to a future meeting.");
+    Meeting newMtg = new PastMeetingImpl(oldMtg, text);   
     meetings.remove(oldMtg);
     meetings.add(newMtg);
 	}
@@ -223,11 +176,10 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public Set<Contact> getContacts(int... ids) {
-    //return null;
     Set<Contact> result = new HashSet<Contact>();
     for (int argId : ids) {
       boolean foundId = false;
-      for (Contact c : contacts) { // TODO: O(n^2) ... need to redo.. memoize?
+      for (Contact c : contacts) {
         if (c.getId() == argId) {
           result.add(c);
           foundId = true;
@@ -242,8 +194,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public Set<Contact> getContacts(String name) {
-    //return null;
-    //return contacts;
     Set<Contact> result = new HashSet<Contact>();
     Iterator<Contact> i = contacts.iterator();
     Contact c = null;
@@ -256,7 +206,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public void flush() { 
-    // save the object to file
     FileOutputStream fos = null;
     ObjectOutputStream out = null;
     try {
@@ -269,21 +218,5 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       ex.printStackTrace();
     }
   }
-
-/*
-  public void flush() {
-    Gson gson = new Gson();
-    String jsonContacts = gson.toJson(contacts);
-    try {
-      //FileWriter writer = new FileWriter("contacts.txt");
-      FileWriter writer = new FileWriter(textfile);
-      writer.write(jsonContacts);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    System.out.println(jsonContacts);
-	}
-*/
 
 }

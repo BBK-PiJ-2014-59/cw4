@@ -14,6 +14,13 @@ public class PastMeetingImpl implements PastMeeting {
     this.notes = notes;
   }
 
+  public PastMeetingImpl(Meeting m, String notes) {
+    this.id = m.getId();
+    this.date = m.getDate();
+    this.contacts = m.getContacts();
+    this.notes = notes;
+  }
+
   public String getNotes() { 
     return notes;
   }

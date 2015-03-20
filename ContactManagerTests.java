@@ -720,7 +720,8 @@ public class ContactManagerTests {
     myCm.addFutureMeeting(nameSet, futureDate1);
     Contact contact1 = (Contact) name1Set.toArray()[0];
     List<Meeting> list = myCm.getFutureMeetingList(contact1);
-    assertEquals(1, list.size());
+    assertTrue(list.get(0) != list.get(1));
+    //assertEquals(1, list.size());
   }
 
   @Test
