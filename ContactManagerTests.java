@@ -17,9 +17,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 
-
-
-
 public class ContactManagerTests { 
 
   private final String textfile = "contacts.txt";
@@ -281,6 +278,7 @@ public class ContactManagerTests {
     ContactManager cm2 = new ContactManagerImpl();
     Set<Contact> cm2Contacts = cm2.getContacts(""); 
     assertEquals(cmContacts.size(), cm2Contacts.size());
+    assertEquals(3, cm2Contacts.size());
   }
 
 /*
@@ -342,28 +340,24 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void flushCreatesFileWithContactManagerObject() { 
+  public void flushCreatesFileWithCorrectObjects() { 
     String label = "TEST_7.5";
 		System.out.println(label);
-    //String testfile = "" + textfile + "." + label;
     ContactManagerTests.deleteFile(textfile);
-    ContactManager cm = new ContactManagerImpl();
-    ContactManager cm2 = null;
-
-    cm.flush();
-
+    myCm.flush();
     FileInputStream fis = null;
     ObjectInputStream in = null;
+    Set<Contact> sc;
     try {
       fis = new FileInputStream(textfile);
       in = new ObjectInputStream(fis);
-      cm2 = (ContactManager) in.readObject();
+      sc = (Set<Contact>) in.readObject();
       in.close();
     } catch (Exception ex) {
       ex.printStackTrace();
     }
 
-    assertTrue(cm2 instanceof ContactManager);
+    assertTrue(sc instanceof Set<Contact>);
   }
 
 /*
