@@ -71,9 +71,12 @@ public class ContactManagerTests {
 
     myCm = new ContactManagerImpl();
 
-    myContact1 = new ContactImpl(name1, notes, 100);
-    myContact2 = new ContactImpl(name2, notes, 101);
-    badContact = new ContactImpl("nameOfBadContact", notes, badContactId); 
+    //myContact1 = new ContactImpl(name1, notes, 100);
+    //myContact2 = new ContactImpl(name2, notes, 101);
+    //badContact = new ContactImpl("nameOfBadContact", notes, badContactId); 
+    badContact = new ContactImpl("nameOfBadContact", notes); 
+    myContact1 = new ContactImpl(name1, notes);
+    myContact2 = new ContactImpl(name2, notes);
 
     int noon = 12; 
 
@@ -132,11 +135,9 @@ public class ContactManagerTests {
     myCm.addNewContact(name1, notes); 
     Set<Contact> s = myCm.getContacts(name1);   
     Iterator<Contact> i = s.iterator();
-    Contact c = null;
-    if (i.hasNext())
-      c = i.next(); 
+    Contact c = (Contact) s.toArray()[0];
     assertEquals(name1, c.getName()); 
-    assertEquals(firstContactId, c.getId()); 
+    //assertEquals(firstContactId, c.getId()); 
   }
   
   @Test
@@ -211,67 +212,62 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void getSameContactsBackAfterFlush() {
+  public void sameContactsAfterFlushAndNextContactIdIsIncremented() {
     String label = "TEST_7";
 		System.out.println(label);
     ContactManagerTests.deleteFile(textfile);
-    myCm.addNewContact(name1, notes); 
-    myCm.addNewContact(name2, notes); 
-    myCm.addNewContact(name3, notes); 
-    Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2,name3));
-    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(contactId1,contactId2,contactId3));
+
+    myCm.addNewContact("name1", notes); 
+    myCm.addNewContact("name2", notes); 
+    Contact c1Before = (Contact) myCm.getContacts("name1").toArray()[0];
+    Contact c2Before = (Contact) myCm.getContacts("name2").toArray()[0];
+
     myCm.flush();
-    ContactManager cm2 = new ContactManagerImpl();
-    Set<Contact> allCm2Contacts = cm2.getContacts("");   
-    Iterator<Contact> i = allCm2Contacts.iterator();
-    Set<String> namesAfter = new HashSet<String>();
-    Set<Integer> idsAfter = new HashSet<Integer>();
-    Contact c = null;
-    while (i.hasNext()) { 
-      c = i.next();
-      namesAfter.add(c.getName()); 
-      idsAfter.add(c.getId()); 
-    }
-    assertTrue(namesAfter.equals(namesBefore)); 
-    assertTrue(idsAfter.equals(idsBefore)); 
+
+    ContactManager cmAfter = new ContactManagerImpl();
+    Contact c1After = (Contact) cmAfter.getContacts("name1").toArray()[0];
+    Contact c2After = (Contact) cmAfter.getContacts("name2").toArray()[0];
+
+    // IDs same after flush?
+    assertEquals(c1Before.getId(), c1After.getId());
+    assertEquals(c2Before.getId(), c2After.getId());
+
+    cmAfter.addNewContact("name3", notes); 
+    Contact c3 = (Contact) cmAfter.getContacts("name3").toArray()[0];
+
+    // IDs getting incremented after flush?
+    assertEquals(c2Before.getId()+1, c3.getId());
+    
+
   }
 
   @Test
-  public void nextContactIdIsIncrementedIfAddedAfterFlush() {
-    String label = "TEST_8";
-		System.out.println(label);
-    ContactManagerTests.deleteFile(textfile);
-    myCm.addNewContact(name1, notes); 
-    myCm.addNewContact(name2, notes); 
-    Set<String> namesBefore = new HashSet<String>(Arrays.asList(name1,name2));
-    Set<Integer> idsBefore = new HashSet<Integer>(Arrays.asList(contactId1,contactId2));
-    myCm.flush();
-    ContactManager cm2 = new ContactManagerImpl();
-    cm2.addNewContact(name3, "BLAHNOTES"); 
-    Set<Contact> name3Set = cm2.getContacts(name3);
-    Contact contact3 = (Contact) name3Set.toArray()[0];
-    assertEquals(contactId3, contact3.getId());
-  }
-
-  @Test
-  public void cm_getBackContactsById() {
+  public void cm_getContactsById() {
     String label = "TEST_16";
 		System.out.println(label);
+
+    // One ID:
+
     myCm.addNewContact(name1, notes); 
+    Contact c1 = (Contact) myCm.getContacts(name1).toArray()[0];
+    int id1 = c1.getId(); 
+    Contact c1ById = (Contact) myCm.getContacts(id1).toArray()[0];
+
+    assertEquals(id1, c1ById.getId()); 
+
+    // Two IDs:
+
     myCm.addNewContact(name2, notes); 
-    myCm.addNewContact(name3, notes); 
-    Set<Integer> idsSearchedFor = new HashSet<Integer>(Arrays.asList(contactId1,contactId2));
-    Set<Contact> s = myCm.getContacts(contactId1,contactId2);
+    Contact c2 = (Contact) myCm.getContacts(name2).toArray()[0];
+    int id2 = c2.getId(); 
+    Set<Integer> testIds = new HashSet<Integer>(Arrays.asList(new Integer[]{id1, id2}));  
+    Set<Contact> resultContacts = myCm.getContacts(id1, id2);
+    Set<Integer> resultIds = new HashSet<Integer>();  
 
-    Iterator<Contact> i = s.iterator();
-    Set<Integer> idsReturned = new HashSet<Integer>();
-    Contact c = null;
-    while (i.hasNext()) { 
-      c = i.next();
-      idsReturned.add(c.getId()); 
-    }
+    for (Contact c : resultContacts) 
+      resultIds.add(c.getId());
 
-    assertEquals(idsSearchedFor,idsReturned);
+    assertEquals(testIds, resultIds);
   }
 
   @Test (expected=IllegalArgumentException.class) 
@@ -448,8 +444,10 @@ public class ContactManagerTests {
   public void util_meetingsAreDuplicate() {
     String label = "TEST_19.55";
 		System.out.println(label);
-    Contact c1 = new ContactImpl("name1", notes, 100); 
-    Contact c2 = new ContactImpl("name2", notes, 101); 
+    //Contact c1 = new ContactImpl("name1", notes, 100); 
+    //Contact c2 = new ContactImpl("name2", notes, 101); 
+    Contact c1 = new ContactImpl("name1", notes); 
+    Contact c2 = new ContactImpl("name2", notes); 
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
     set.add(c1);
@@ -465,8 +463,10 @@ public class ContactManagerTests {
   public void util_dedupeMeetingList() {
     String label = "TEST_19.55";
 		System.out.println(label);
-    Contact c1 = new ContactImpl("name1", notes, 100); 
-    Contact c2 = new ContactImpl("name2", notes, 101); 
+    //Contact c1 = new ContactImpl("name1", notes, 100); 
+    //Contact c2 = new ContactImpl("name2", notes, 101); 
+    Contact c1 = new ContactImpl("name1", notes); 
+    Contact c2 = new ContactImpl("name2", notes); 
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
     set.add(c1);
@@ -505,7 +505,8 @@ public class ContactManagerTests {
   public void util_sortMeetingList() {
     String label = "TEST_19.75";
 		System.out.println(label);
-    Contact c1 = new ContactImpl("name1", notes, 100); 
+    //Contact c1 = new ContactImpl("name1", notes, 100); 
+    Contact c1 = new ContactImpl("name1", notes); 
     Set<Contact> set = new HashSet<Contact>();
     set.add(c1);
     Meeting m1 = new FutureMeetingImpl(100, futureDate1, set);
@@ -938,7 +939,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void meetingsHaveUniqueIds() {
+  public void meetingsHaveUniqueIdsWithinContactManager() {
     String label = "TEST_36";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
@@ -949,4 +950,24 @@ public class ContactManagerTests {
     assertTrue(id1 != id2);
   }
 
+  @Test
+  public void meetingsHaveUniqueIdsWithinMeeting() {
+    String label = "TEST_37";
+		System.out.println(label);
+    Set<Contact> sc = new HashSet<Contact>();
+    Contact c1 = new ContactImpl(name1, notes);
+    sc.add(c1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
+    Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
+    assertTrue(m1.getId() != m2.getId());
+  }
+
+  @Test
+  public void contactsHaveUniqueIdsWithinContact() {
+    String label = "TEST_38";
+		System.out.println(label);
+    Contact c1 = new ContactImpl(name1, notes);
+    Contact c2 = new ContactImpl(name1, notes);
+    assertTrue(c1.getId() != c2.getId());
+  }
 }

@@ -2,6 +2,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collections;
@@ -25,7 +27,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   private int nextContactId = FIRSTCONTACTID;
   private static final int FIRSTMTGID = 100;
   private int nextMtgId = FIRSTMTGID;
-  private Set<Contact> contacts = null;
+  //private Set<Contact> contacts = null;
+  private HashMap<Integer, Contact> contacts = null;
   private List<Meeting> meetings = null;
 
   public ContactManagerImpl() {
@@ -35,7 +38,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       try { 
         FileInputStream fis = new FileInputStream(textfile);
         ObjectInputStream in = new ObjectInputStream(fis);
-        contacts = (Set<Contact>) in.readObject();
+        //contacts = (Set<Contact>) in.readObject();
+        contacts = (HashMap<Integer, Contact>) in.readObject();
         nextContactId = (int) in.readObject();
         meetings = (List<Meeting>) in.readObject();
         nextMtgId = (int) in.readObject();
@@ -44,7 +48,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
         ex.printStackTrace();
       }
     } else {
-      contacts = new HashSet<Contact>();
+      //contacts = new HashSet<Contact>();
+      contacts = new HashMap<Integer, Contact>();
       nextContactId = FIRSTCONTACTID;
       meetings = new ArrayList<Meeting>();
       nextMtgId = FIRSTMTGID;
@@ -68,7 +73,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   private boolean allContactsExist(Set<Contact> sc) {
     boolean result = true;
     for (Contact c: sc) {
-      result = contacts.contains(c);
+      //result = contacts.contains(c);
+      result = contacts.containsValue(c);
       if (result == false) {
         break;
       }
@@ -117,7 +123,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public List<Meeting> getFutureMeetingList(Contact contact) {
-    if (!contacts.contains(contact))
+    //if (!contacts.contains(contact))
+    if (!contacts.containsValue(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<Meeting> result = new ArrayList<Meeting>();
     Iterator<Meeting> i = meetings.iterator();
@@ -148,7 +155,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
-    if (!contacts.contains(contact))
+    //if (!contacts.contains(contact))
+    if (!contacts.containsValue(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<PastMeeting> result = new ArrayList<PastMeeting>();
     Iterator<Meeting> i = meetings.iterator();
@@ -195,9 +203,22 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public void addNewContact(String name, String notes) {
-    contacts.add(new ContactImpl(name, notes, nextContactId++));
+    //contacts.add(new ContactImpl(name, notes, nextContactId++));
+    Contact c = new ContactImpl(name, notes);
+    contacts.put(c.getId(), c);
 	}
 
+  public Set<Contact> getContacts(int... ids) {
+    Set<Contact> result = new HashSet<Contact>();
+    for (int id : ids) 
+      if (contacts.containsKey(id))
+        result.add(contacts.get(id));
+      else
+        throw new IllegalArgumentException("Could not find requested ID " + id);
+    return result;
+  }
+
+/*
   public Set<Contact> getContacts(int... ids) {
     Set<Contact> result = new HashSet<Contact>();
     for (int argId : ids) {
@@ -213,17 +234,14 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       }
     }
     return result;
-
 	}
+*/
 
   public Set<Contact> getContacts(String name) {
     if (name == null)
-      throw new NullPointerException("Name can't be null.");
+      throw new NullPointerException("Contact name was null.");
     Set<Contact> result = new HashSet<Contact>();
-    Iterator<Contact> i = contacts.iterator();
-    Contact c = null;
-    while (i.hasNext()) { 
-      c = i.next();
+    for (Contact c : contacts.values()) { 
       if (c.getName().contains(name)) 
         result.add(c);
     }
