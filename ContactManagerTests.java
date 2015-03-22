@@ -45,8 +45,8 @@ public class ContactManagerTests {
 
   private final String notes = "notes";
 
-  private Contact myContact1;
-  private Contact myContact2;
+  private Contact testContact1;
+  private Contact testContact2;
   private Contact badContact; 
 
   private ContactManager myCm;
@@ -71,12 +71,12 @@ public class ContactManagerTests {
 
     myCm = new ContactManagerImpl();
 
-    //myContact1 = new ContactImpl(name1, notes, 100);
-    //myContact2 = new ContactImpl(name2, notes, 101);
+    //testContact1 = new ContactImpl(name1, notes, 100);
+    //testContact2 = new ContactImpl(name2, notes, 101);
     //badContact = new ContactImpl("nameOfBadContact", notes, badContactId); 
     badContact = new ContactImpl("nameOfBadContact", notes); 
-    myContact1 = new ContactImpl(name1, notes);
-    myContact2 = new ContactImpl(name2, notes);
+    testContact1 = new ContactImpl(name1, notes);
+    testContact2 = new ContactImpl(name2, notes);
 
     int noon = 12; 
 
@@ -117,15 +117,15 @@ public class ContactManagerTests {
   public void contact_GetName_ReturnsName() {
     String label = "TEST_2";
 		System.out.println(label);
-    assertEquals(name1, myContact1.getName());
+    assertEquals(name1, testContact1.getName());
   }
 
   @Test
   public void contact_GetNotes_ReturnsNotes() {
     String label = "TEST_3";
 		System.out.println(label);
-    myContact1.addNotes(notes);
-    assertEquals(notes, myContact1.getNotes());
+    testContact1.addNotes(notes);
+    assertEquals(notes, testContact1.getNotes());
   }
 
   @Test
@@ -444,18 +444,16 @@ public class ContactManagerTests {
   public void util_meetingsAreDuplicate() {
     String label = "TEST_19.55";
 		System.out.println(label);
-    //Contact c1 = new ContactImpl("name1", notes, 100); 
-    //Contact c2 = new ContactImpl("name2", notes, 101); 
-    Contact c1 = new ContactImpl("name1", notes); 
-    Contact c2 = new ContactImpl("name2", notes); 
+    //Contact c1 = new ContactImpl("name1", notes); 
+    //Contact c2 = new ContactImpl("name2", notes); 
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
-    set.add(c1);
-    set.add(c2);
-    set2.add(c1);
-    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set); 
-    Meeting m2 = new FutureMeetingImpl(101, futureDate1, set); 
-    Meeting m3 = new FutureMeetingImpl(102, futureDate1, set2); 
+    set.add(testContact1);
+    set.add(testContact2);
+    set2.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
     assertFalse(util.meetingsAreDuplicate(m1, m2));
     assertFalse(util.meetingsAreDuplicate(m1, m3));
   }
@@ -465,16 +463,16 @@ public class ContactManagerTests {
 		System.out.println(label);
     //Contact c1 = new ContactImpl("name1", notes, 100); 
     //Contact c2 = new ContactImpl("name2", notes, 101); 
-    Contact c1 = new ContactImpl("name1", notes); 
-    Contact c2 = new ContactImpl("name2", notes); 
+    //Contact c1 = new ContactImpl("name1", notes); 
+    //Contact c2 = new ContactImpl("name2", notes); 
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
-    set.add(c1);
-    set.add(c2);
-    set2.add(c1);
-    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set);
-    Meeting m2 = new FutureMeetingImpl(101, futureDate1, set); 
-    Meeting m3 = new FutureMeetingImpl(102, futureDate1, set2); 
+    set.add(testContact1);
+    set.add(testContact2);
+    set2.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
     List<Meeting> list = new ArrayList<Meeting>();
     list.add(m1);
     list.add(m2);
@@ -506,18 +504,18 @@ public class ContactManagerTests {
     String label = "TEST_19.75";
 		System.out.println(label);
     //Contact c1 = new ContactImpl("name1", notes, 100); 
-    Contact c1 = new ContactImpl("name1", notes); 
+    //Contact c1 = new ContactImpl("name1", notes); 
     Set<Contact> set = new HashSet<Contact>();
-    set.add(c1);
-    Meeting m1 = new FutureMeetingImpl(100, futureDate1, set);
-    Meeting m2 = new FutureMeetingImpl(101, futureDate2, set);
+    set.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(futureDate2, set);
     List<Meeting> list = new ArrayList<Meeting>();
     list.add(m2);
     list.add(m1);
     util.sortMeetingList(list);
     assertEquals(m1, list.get(0));
 
-    Meeting m3 = new FutureMeetingImpl(103, futureDate2, set);
+    Meeting m3 = new FutureMeetingImpl(futureDate2, set);
     List<Meeting> list2 = new ArrayList<Meeting>();
     list2.add(m2);
     list2.add(m3);
@@ -955,8 +953,8 @@ public class ContactManagerTests {
     String label = "TEST_37";
 		System.out.println(label);
     Set<Contact> sc = new HashSet<Contact>();
-    Contact c1 = new ContactImpl(name1, notes);
-    sc.add(c1);
+    //Contact c1 = new ContactImpl(name1, notes);
+    sc.add(testContact1);
     Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
     Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
     assertTrue(m1.getId() != m2.getId());
@@ -966,8 +964,8 @@ public class ContactManagerTests {
   public void contactsHaveUniqueIdsWithinContact() {
     String label = "TEST_38";
 		System.out.println(label);
-    Contact c1 = new ContactImpl(name1, notes);
-    Contact c2 = new ContactImpl(name1, notes);
-    assertTrue(c1.getId() != c2.getId());
+    //Contact c1 = new ContactImpl(name1, notes);
+    //Contact c2 = new ContactImpl(name1, notes);
+    assertTrue(testContact1.getId() != testContact2.getId());
   }
 }

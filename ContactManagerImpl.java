@@ -29,7 +29,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   private int nextMtgId = FIRSTMTGID;
   //private Set<Contact> contacts = null;
   private HashMap<Integer, Contact> contacts = null;
-  private List<Meeting> meetings = null;
+  //private List<Meeting> meetings = null;
+  private HashMap<Integer, Meeting> meetings = null;
 
   public ContactManagerImpl() {
     if (textfile == null)
@@ -41,8 +42,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
         //contacts = (Set<Contact>) in.readObject();
         contacts = (HashMap<Integer, Contact>) in.readObject();
         nextContactId = (int) in.readObject();
-        meetings = (List<Meeting>) in.readObject();
-        nextMtgId = (int) in.readObject();
+        contacts = (HashMap<Integer, Contact>) in.readObject();
+        meetings = (HashMap<Integer, Meeting>) in.readObject();
+        nextMtgId = (int) in.readObject(); // remove
         in.close();
       } catch (Exception ex) { 
         ex.printStackTrace();
@@ -50,9 +52,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     } else {
       //contacts = new HashSet<Contact>();
       contacts = new HashMap<Integer, Contact>();
-      nextContactId = FIRSTCONTACTID;
-      meetings = new ArrayList<Meeting>();
-      nextMtgId = FIRSTMTGID;
+      nextContactId = FIRSTCONTACTID; // remove 
+      meetings = new HashMap<Integer, Meeting>();
+      nextMtgId = FIRSTMTGID; // remove
     }
   }
 
@@ -65,8 +67,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       throw new IllegalArgumentException("Nonexistent contact.");
     }
     int id = nextMtgId++;
-    FutureMeeting fm = new FutureMeetingImpl(id, date, sc);
-    meetings.add(fm);
+    FutureMeeting fm = new FutureMeetingImpl(date, sc);
+    meetings.put(fm.getId(), fm);
     return id;
   }
 
@@ -111,28 +113,18 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 
   public Meeting getMeeting(int id) {
     Meeting result = null;
-    Iterator<Meeting> i = meetings.iterator();
-    while (i.hasNext()) { 
-      Meeting m = i.next();
-      if (m.getId() == id) {
-        result = m;
-        break;
-      }
-    }
+    if (meetings.containsKey(id))
+      result = meetings.get(id);
     return result;
 	}
 
   public List<Meeting> getFutureMeetingList(Contact contact) {
-    //if (!contacts.contains(contact))
     if (!contacts.containsValue(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<Meeting> result = new ArrayList<Meeting>();
-    Iterator<Meeting> i = meetings.iterator();
-    while (i.hasNext()) { 
-      Meeting m = i.next();
+    for (Meeting m : meetings.values())
       if (m.getContacts().contains(contact)) 
         result.add(m);
-    }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
       util.sortMeetingList(result);
@@ -142,12 +134,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 
   public List<Meeting> getFutureMeetingList(Calendar date) {
     List<Meeting> result = new ArrayList<Meeting>();
-    Iterator<Meeting> i = meetings.iterator();
-    while (i.hasNext()) { 
-      Meeting m = i.next();
+    for (Meeting m : meetings.values())
       if (util.areSameDay(date,m.getDate())) 
         result.add(m);
-    }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
       util.sortMeetingList(result);
@@ -155,16 +144,12 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public List<PastMeeting> getPastMeetingList(Contact contact) {
-    //if (!contacts.contains(contact))
     if (!contacts.containsValue(contact))
       throw new IllegalArgumentException("Contact doesn't exist.");
     List<PastMeeting> result = new ArrayList<PastMeeting>();
-    Iterator<Meeting> i = meetings.iterator();
-    while (i.hasNext()) { 
-      Meeting m = i.next();
+    for (Meeting m : meetings.values())
       if (util.isPast(m.getDate()) && m.getContacts().contains(contact)) 
         result.add((PastMeeting)m);
-    }
     if (result.size() != 0)
       result = util.dedupeMeetingList(result);
       util.sortMeetingList(result);
@@ -184,7 +169,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     }
     int id = nextMtgId++;
     PastMeeting pm = new PastMeetingImpl(id, date, sc, text);
-    meetings.add(pm);
+    meetings.put(pm.getId(), pm);
 	}
 
   public void addMeetingNotes(int id, String text) {
@@ -198,8 +183,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     if (oldMtg.getDate().after(Calendar.getInstance())) 
       throw new IllegalStateException("Can't add notes to a future meeting.");
     Meeting newMtg = new PastMeetingImpl(oldMtg, text);   
-    meetings.remove(oldMtg);
-    meetings.add(newMtg);
+    meetings.remove(oldMtg.getId());
+    meetings.put(newMtg.getId(), newMtg);
 	}
 
   public void addNewContact(String name, String notes) {
