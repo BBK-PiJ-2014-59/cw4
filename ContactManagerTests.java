@@ -369,7 +369,7 @@ public class ContactManagerTests {
     myCm.addNewContact(name1, notes);
     Set<Contact> set = myCm.getContacts("name");
     int mtgId = myCm.addFutureMeeting(set, futureDate1);
-    myCm.getPastMeeting(firstMtgId);
+    myCm.getPastMeeting(mtgId);
   }
 
   @Test (expected=IllegalArgumentException.class) 
@@ -890,15 +890,19 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_addMeetingNotesAddsNotes() {
+  public void cm_addMeetingNotesToPastMeetingOverwritesExistingNotes() {
     String label = "TEST_32";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    myCm.addNewPastMeeting(nameSet, pastDate1, notes);
+    myCm.addNewContact("name1", notes);
+    Set<Contact> name1Set = myCm.getContacts("name1");
+    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
     String notes2 = "notes2";
-    myCm.addMeetingNotes(mtgId1, notes2);
-    assertEquals(notes2, myCm.getPastMeeting(mtgId1).getNotes());
+    Contact c = (Contact) name1Set.toArray()[0];
+    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    PastMeeting pm = list.get(0);
+    int id = pm.getId();
+    myCm.addMeetingNotes(id, notes2);
+    assertEquals(notes2, myCm.getPastMeeting(id).getNotes());
   }
 
   @Test (expected=IllegalArgumentException.class) 
