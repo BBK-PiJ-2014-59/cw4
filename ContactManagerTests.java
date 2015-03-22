@@ -287,13 +287,17 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_addFutureMeetingWithOneExistingContact() {
+  public void cm_addFutureMeetingCreatesMeetingsWithUniqueIds() {
     String label = "TEST_17.5";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> s = myCm.getContacts(name1);
-    int mtgId = myCm.addFutureMeeting(s, futureDate1);
-    assertEquals(firstMtgId, mtgId);
+    int id1 = myCm.addFutureMeeting(s, futureDate1);
+    Meeting m1 = myCm.getMeeting(id1);
+    int id2 = myCm.addFutureMeeting(s, futureDate2);
+    Meeting m2 = myCm.getMeeting(id2);
+    assertEquals(id1, m1.getId());
+    assertEquals(id2, m2.getId());
   }
 
   @Test
@@ -307,11 +311,11 @@ public class ContactManagerTests {
     Set<Contact> set1 = myCm.getContacts("name");
     int expectedMatches = 3;
     int mtgId = myCm.addFutureMeeting(set1, futureDate1);
-    Meeting myMtg = myCm.getMeeting(firstMtgId);
+    System.out.println("mtgId: " + mtgId);
+    Meeting myMtg = myCm.getMeeting(mtgId);
     Set<Contact> set2 = myMtg.getContacts();
     assertEquals(expectedMatches, set1.size());
     assertEquals(set1, set2);
-    assertEquals(firstMtgId, mtgId);
     assertEquals(futureDate1, myMtg.getDate());
   }
 
@@ -319,19 +323,22 @@ public class ContactManagerTests {
   public void cm_addOneFutureMeetingAndGetItBackWithGetFutureMeeting() {
     String label = "TEST_17.55";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    myCm.addNewContact(name2, notes);
-    myCm.addNewContact(name3, notes);
-    myCm.addNewContact("unmatched-N-a-M-e", notes);
-    Set<Contact> set1 = myCm.getContacts("name");
-    int expectedMatches = 3;
+    myCm.addNewContact("name1", notes);
+    Set<Contact> set1 = myCm.getContacts("name1");
     int mtgId = myCm.addFutureMeeting(set1, futureDate1);
-    FutureMeeting myMtg = myCm.getFutureMeeting(firstMtgId);
+    int mtgId2 = myCm.addFutureMeeting(set1, futureDate2);
+    System.out.println("mtgId: " + mtgId);
+    System.out.println("mtgId2: " + mtgId2);
+    //FutureMeeting myMtg = myCm.getFutureMeeting(firstMtgId);
+    FutureMeeting myMtg = myCm.getFutureMeeting(mtgId);
+    assertEquals(mtgId, myMtg.getId());
+    /*
     Set<Contact> set2 = myMtg.getContacts();
     assertEquals(expectedMatches, set1.size());
     assertEquals(set1, set2);
     assertEquals(firstMtgId, mtgId);
     assertEquals(futureDate1, myMtg.getDate());
+    */
   }
 
   @Test
@@ -366,13 +373,16 @@ public class ContactManagerTests {
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addOnePastMeetingAndRetrieveWithGetFutureMeeting() {
+  public void cm_addOnePastMeetingAndTryToRetrieveWithGetFutureMeetingById() {
     String label = "TEST_17.585";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> set = myCm.getContacts("name");
     myCm.addNewPastMeeting(set, pastDate1, notes);
-    myCm.getFutureMeeting(mtgId1);
+    Contact c = (Contact) set.toArray()[0];
+    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    assertEquals(1, list.size());
+    myCm.getFutureMeeting(list.get(0).getId());
   }
 
   @Test (expected=IllegalArgumentException.class) 
@@ -733,8 +743,8 @@ public class ContactManagerTests {
     String label = "TEST_27";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    myCm.addNewContact(name2, notes);
+    myCm.addNewContact("name1", notes);
+    myCm.addNewContact("name2", notes);
 
     // add meeting with contacts 1 and 2:
 
@@ -758,7 +768,7 @@ public class ContactManagerTests {
     List<PastMeeting> list2 = myCm.getPastMeetingList(contact2);
 
     assertEquals(1, list1.size());
-    assertEquals(mtgId1, list1.get(0).getId());
+    //assertEquals(mtgId1, list1.get(0).getId());
     assertEquals(2, list2.size());
   }
  
@@ -869,14 +879,14 @@ public class ContactManagerTests {
     String label = "TEST_31";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
-    String mtgNotes = "mtgNotes";
-    Set<Contact> nameSet = myCm.getContacts("name");
-    myCm.addNewPastMeeting(nameSet, pastDate1, mtgNotes);
-    PastMeeting pm = myCm.getPastMeeting(mtgId1);
-    assertEquals(mtgId1, pm.getId());
+    Set<Contact> name1Set = myCm.getContacts("name1");
+    myCm.addNewPastMeeting(name1Set, pastDate1, label);
+    Contact c = (Contact) name1Set.toArray()[0];
+    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    PastMeeting pm = list.get(0); 
     assertEquals(pastDate1, pm.getDate());
-    assertEquals(mtgNotes, pm.getNotes());
-    assertEquals(nameSet, pm.getContacts());
+    assertEquals(label, pm.getNotes());
+    assertEquals(name1Set, pm.getContacts());
   }
 
   @Test
@@ -899,7 +909,7 @@ public class ContactManagerTests {
   }
 
   @Test (expected=IllegalStateException.class) 
-  public void cm_addMeetingNotesToFutureMeetingThatHasNotHappened() {
+  public void cm_addMeetingNotesToFutureMeetingThatHasNotHappenedYet() {
     String label = "TEST_34";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
@@ -949,7 +959,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void meetingsHaveUniqueIdsWithinMeeting() {
+  public void futureMeetingsHaveUniqueIdsWithinClass() {
     String label = "TEST_37";
 		System.out.println(label);
     Set<Contact> sc = new HashSet<Contact>();
@@ -957,6 +967,20 @@ public class ContactManagerTests {
     sc.add(testContact1);
     Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
     Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
+    System.out.println("m1.getId(): " + m1.getId());
+    System.out.println("m2.getId(): " + m2.getId());
+    assertTrue(m1.getId() != m2.getId());
+  }
+
+  @Test
+  public void pastMeetingsHaveUniqueIdsWithinClass() {
+    String label = "TEST_37.5";
+		System.out.println(label);
+    Set<Contact> sc = new HashSet<Contact>();
+    //Contact c1 = new ContactImpl(name1, notes);
+    sc.add(testContact1);
+    Meeting m1 = new PastMeetingImpl(futureDate1, sc, notes); 
+    Meeting m2 = new PastMeetingImpl(futureDate2, sc, notes); 
     assertTrue(m1.getId() != m2.getId());
   }
 

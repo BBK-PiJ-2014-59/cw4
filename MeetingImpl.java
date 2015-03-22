@@ -8,7 +8,7 @@ public class MeetingImpl implements Meeting {
   private int id;
   private Calendar date;
   private Set<Contact> contacts;
-  private String notes;
+  protected String notes;
 
   public MeetingImpl(Calendar date, Set<Contact> contacts) { 
     this.id = getNextId();
@@ -20,6 +20,14 @@ public class MeetingImpl implements Meeting {
     this.id = getNextId();
     this.date = date;
     this.contacts = contacts;
+    this.notes = notes;
+  }
+
+  // Copy constructor, for converting to PastMeeting:
+  public MeetingImpl(Meeting m, String notes) {
+    this.id = m.getId();
+    this.date = m.getDate();
+    this.contacts = m.getContacts();
     this.notes = notes;
   }
 

@@ -40,11 +40,10 @@ public class ContactManagerImpl implements ContactManager, Serializable {
         FileInputStream fis = new FileInputStream(textfile);
         ObjectInputStream in = new ObjectInputStream(fis);
         //contacts = (Set<Contact>) in.readObject();
-        contacts = (HashMap<Integer, Contact>) in.readObject();
-        nextContactId = (int) in.readObject();
+        //nextContactId = (int) in.readObject();
         contacts = (HashMap<Integer, Contact>) in.readObject();
         meetings = (HashMap<Integer, Meeting>) in.readObject();
-        nextMtgId = (int) in.readObject(); // remove
+        //nextMtgId = (int) in.readObject(); // remove
         in.close();
       } catch (Exception ex) { 
         ex.printStackTrace();
@@ -66,9 +65,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     if (!allContactsExist(sc)) {
       throw new IllegalArgumentException("Nonexistent contact.");
     }
-    int id = nextMtgId++;
     FutureMeeting fm = new FutureMeetingImpl(date, sc);
-    meetings.put(fm.getId(), fm);
+    int id = fm.getId();
+    meetings.put(id, fm);
     return id;
   }
 
@@ -167,18 +166,18 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     if (contacts == null || date == null || text == null) { 
       throw new NullPointerException("null argument passed in.");
     }
-    int id = nextMtgId++;
-    PastMeeting pm = new PastMeetingImpl(id, date, sc, text);
+    //int id = nextMtgId++;
+    PastMeeting pm = new PastMeetingImpl(date, sc, text);
     meetings.put(pm.getId(), pm);
 	}
 
   public void addMeetingNotes(int id, String text) {
     if (text == null)
-      throw new NullPointerException("Notes added to meeting can't be null.");
+      throw new NullPointerException("Notes text is null.");
     Meeting oldMtg = null;
     oldMtg = getMeeting(id); 
     if (oldMtg == null) { 
-      throw new IllegalArgumentException("Can't add notes to a nonexistent meeting.");
+      throw new IllegalArgumentException("Meeting doesn't exist or hasn't happened yet.");
     }
     if (oldMtg.getDate().after(Calendar.getInstance())) 
       throw new IllegalStateException("Can't add notes to a future meeting.");
@@ -240,9 +239,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       fos = new FileOutputStream(textfile);
       out = new ObjectOutputStream(fos);
       out.writeObject(contacts);
-      out.writeObject(nextContactId);
+      //out.writeObject(nextContactId);
       out.writeObject(meetings);
-      out.writeObject(nextMtgId);
+      //out.writeObject(nextMtgId);
       out.close();
     } catch (Exception ex) {
       ex.printStackTrace();

@@ -1,39 +1,18 @@
 import java.util.Calendar;
 import java.util.Set;
 
-public class PastMeetingImpl implements PastMeeting { 
-  private int id;
-  private Calendar date;
-  private Set<Contact> contacts;
-  private String notes;
+public class PastMeetingImpl extends MeetingImpl implements PastMeeting { 
 
-  public PastMeetingImpl(int id, Calendar date, Set<Contact> contacts, String notes) {
-    this.id = id;
-    this.date = date;
-    this.contacts = contacts;
-    this.notes = notes;
+  public PastMeetingImpl(Calendar date, Set<Contact> contacts, String notes) {
+    super(date, contacts, notes);
   }
 
-  public PastMeetingImpl(Meeting m, String notes) {
-    this.id = m.getId();
-    this.date = m.getDate();
-    this.contacts = m.getContacts();
-    this.notes = notes;
+  // Copy constructor, for converting to PastMeeting:
+  public PastMeetingImpl(Meeting m, String notes) { 
+    super(m, notes);
   }
 
   public String getNotes() { 
     return notes;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public Calendar getDate() {
-    return date;
-  }
-
-  public Set<Contact> getContacts() {
-    return contacts;
   }
 }
