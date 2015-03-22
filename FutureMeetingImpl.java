@@ -28,5 +28,4 @@ public class FutureMeetingImpl implements FutureMeeting, Comparable<Meeting> {
   public int compareTo(Meeting m) { 
     return 0;
   }
-  //public <T extends Meeting> int compareTo(T o)
 }

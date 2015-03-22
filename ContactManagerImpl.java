@@ -28,30 +28,17 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   private Set<Contact> contacts = null;
   private List<Meeting> meetings = null;
 
-/*
-  public ContactManagerImpl() {
-    contacts = new HashSet<Contact>();
-    meetings = new ArrayList<Meeting>();
-  }
-*/
-
   public ContactManagerImpl() {
     if (textfile == null)
       throw new NullPointerException("Missing name of text file.");
     if (new File(textfile).exists()) {
       try { 
-        System.out.println("TEXTFILE FOUND");
         FileInputStream fis = new FileInputStream(textfile);
         ObjectInputStream in = new ObjectInputStream(fis);
-        //ContactManager fileCm = (ContactManager) in.readObject();
-        //ContactManager fileCm = (ContactManager) in.readObject();
         contacts = (Set<Contact>) in.readObject();
         nextContactId = (int) in.readObject();
         meetings = (List<Meeting>) in.readObject();
         nextMtgId = (int) in.readObject();
-        //System.out.println("is a ? " + b); 
-        //boolean b = fileCm instanceof ContactManager;
-        //meetings = fileCm.getMeetings();
         in.close();
       } catch (Exception ex) { 
         ex.printStackTrace();
@@ -62,38 +49,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       meetings = new ArrayList<Meeting>();
       nextMtgId = FIRSTMTGID;
     }
-  }
-
-/*
-  public ContactManager launch() { 
-    System.out.println("LAUNCH");
-    if (filename == null)
-      throw new NullPointerException();
-    ContactManager result = null;
-    FileInputStream fis = null;
-    ObjectInputStream in = null;
-    if (new File(filename).exists()) {
-      try { 
-        fis = new FileInputStream(filename);
-        in = new ObjectInputStream(fis);
-        result = (ContactManager) in.readObject();
-        in.close();
-      } catch (Exception ex) { 
-        ex.printStackTrace();
-      }
-    } else {
-      result = new ContactManagerImpl();
-    }
-    return result;
-  }
-*/
-
-  private Set<Contact> getContacts() {
-    return contacts;
-  }
-
-  private List<Meeting> getMeetings() {
-    return meetings;
   }
 
   public int addFutureMeeting(Set<Contact> sc, Calendar date) {
@@ -138,7 +93,9 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   public FutureMeeting getFutureMeeting(int id) {
     FutureMeeting result;
     Meeting m = getMeeting(id);
-    if (util.isFuture(m.getDate()))
+    if (m == null)
+      result = null;
+    else if (util.isFuture(m.getDate()))
       result = (FutureMeeting) m; 
     else
       throw new IllegalArgumentException("Meeting " + id + " is in the past.");
@@ -260,6 +217,8 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public Set<Contact> getContacts(String name) {
+    if (name == null)
+      throw new NullPointerException("Name can't be null.");
     Set<Contact> result = new HashSet<Contact>();
     Iterator<Contact> i = contacts.iterator();
     Contact c = null;
@@ -271,29 +230,12 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     return result;
 	}
 
-/*
   public void flush() { 
     FileOutputStream fos = null;
     ObjectOutputStream out = null;
     try {
       fos = new FileOutputStream(textfile);
       out = new ObjectOutputStream(fos);
-      out.writeObject(this);
-
-      out.close();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-*/
-
-  public void flush() { 
-    FileOutputStream fos = null;
-    ObjectOutputStream out = null;
-    try {
-      fos = new FileOutputStream(textfile);
-      out = new ObjectOutputStream(fos);
-      //out.writeObject(this);
       out.writeObject(contacts);
       out.writeObject(nextContactId);
       out.writeObject(meetings);

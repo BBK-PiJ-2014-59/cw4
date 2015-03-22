@@ -2,7 +2,6 @@ import java.io.Serializable;
 
 public class ContactImpl implements Contact, Serializable { 
   private final int id; // uniqueness to be managed by ContactManager
-  //static int nextId = 100;
   private final String name;
   private String notes;
 
@@ -12,7 +11,6 @@ public class ContactImpl implements Contact, Serializable {
     }
     this.notes = notes;
     this.name = name;
-    //id = nextId++; 
     this.id = id; 
   }
 
