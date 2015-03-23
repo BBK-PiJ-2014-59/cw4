@@ -23,13 +23,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 
   private ContactManagerUtil util = new ContactManagerUtilImpl();
   private String textfile = "contacts.txt";
-  private static final int FIRSTCONTACTID = 100;
-  private int nextContactId = FIRSTCONTACTID;
-  private static final int FIRSTMTGID = 100;
-  private int nextMtgId = FIRSTMTGID;
-  //private Set<Contact> contacts = null;
   private HashMap<Integer, Contact> contacts = null;
-  //private List<Meeting> meetings = null;
   private HashMap<Integer, Meeting> meetings = null;
 
   public ContactManagerImpl() {
@@ -39,21 +33,15 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       try { 
         FileInputStream fis = new FileInputStream(textfile);
         ObjectInputStream in = new ObjectInputStream(fis);
-        //contacts = (Set<Contact>) in.readObject();
-        //nextContactId = (int) in.readObject();
         contacts = (HashMap<Integer, Contact>) in.readObject();
         meetings = (HashMap<Integer, Meeting>) in.readObject();
-        //nextMtgId = (int) in.readObject(); // remove
         in.close();
       } catch (Exception ex) { 
         ex.printStackTrace();
       }
     } else {
-      //contacts = new HashSet<Contact>();
       contacts = new HashMap<Integer, Contact>();
-      nextContactId = FIRSTCONTACTID; // remove 
       meetings = new HashMap<Integer, Meeting>();
-      nextMtgId = FIRSTMTGID; // remove
     }
   }
 
@@ -74,7 +62,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
   private boolean allContactsExist(Set<Contact> sc) {
     boolean result = true;
     for (Contact c: sc) {
-      //result = contacts.contains(c);
       result = contacts.containsValue(c);
       if (result == false) {
         break;
@@ -166,7 +153,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
     if (contacts == null || date == null || text == null) { 
       throw new NullPointerException("null argument passed in.");
     }
-    //int id = nextMtgId++;
     PastMeeting pm = new PastMeetingImpl(date, sc, text);
     meetings.put(pm.getId(), pm);
 	}
@@ -187,7 +173,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
 	}
 
   public void addNewContact(String name, String notes) {
-    //contacts.add(new ContactImpl(name, notes, nextContactId++));
     Contact c = new ContactImpl(name, notes);
     contacts.put(c.getId(), c);
 	}
@@ -201,25 +186,6 @@ public class ContactManagerImpl implements ContactManager, Serializable {
         throw new IllegalArgumentException("Could not find requested ID " + id);
     return result;
   }
-
-/*
-  public Set<Contact> getContacts(int... ids) {
-    Set<Contact> result = new HashSet<Contact>();
-    for (int argId : ids) {
-      boolean foundId = false;
-      for (Contact c : contacts) {
-        if (c.getId() == argId) {
-          result.add(c);
-          foundId = true;
-        }
-      }
-      if (foundId == false) {
-        throw new IllegalArgumentException("Could not find requested ID " + argId);
-      }
-    }
-    return result;
-	}
-*/
 
   public Set<Contact> getContacts(String name) {
     if (name == null)
@@ -239,9 +205,7 @@ public class ContactManagerImpl implements ContactManager, Serializable {
       fos = new FileOutputStream(textfile);
       out = new ObjectOutputStream(fos);
       out.writeObject(contacts);
-      //out.writeObject(nextContactId);
       out.writeObject(meetings);
-      //out.writeObject(nextMtgId);
       out.close();
     } catch (Exception ex) {
       ex.printStackTrace();
