@@ -242,7 +242,7 @@ public class ContactManagerTests {
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_badIdToGetContactsById() {
+  public void cm_getContactsByIdUsingBadId() {
     String label = "TEST_17";
 		System.out.println(label);
 
@@ -250,7 +250,7 @@ public class ContactManagerTests {
   }
 
   @Test (expected=NullPointerException.class) 
-  public void cm_getContactsByNameNull() {
+  public void cm_getContactsByNameUsingNull() {
     String label = "TEST_17.4";
 		System.out.println(label);
 
@@ -270,7 +270,7 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_addOneFutureMeetingAndGetItBackWithGetMeeting() {
+  public void cm_getMeetingByNameUsingPartialName() {
     String label = "TEST_17.51";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
@@ -289,70 +289,53 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_addOneFutureMeetingAndGetItBackWithGetFutureMeeting() {
+  public void cm_getFutureMeetingById() {
     String label = "TEST_17.55";
 		System.out.println(label);
-    myCm.addNewContact("name1", notes);
-    Set<Contact> set1 = myCm.getContacts("name1");
-    int mtgId = myCm.addFutureMeeting(set1, futureDate1);
-    int mtgId2 = myCm.addFutureMeeting(set1, futureDate2);
-    System.out.println("mtgId: " + mtgId);
-    System.out.println("mtgId2: " + mtgId2);
-    FutureMeeting myMtg = myCm.getFutureMeeting(mtgId);
-    assertEquals(mtgId, myMtg.getId());
+    assertEquals(testCmMtgId1, testCmMtg1.getId());
   }
 
   @Test
   public void util_isFuture() {
     String label = "TEST_17.56";
 		System.out.println(label);
-    Calendar cal = Calendar.getInstance();
-    assertFalse(util.isFuture(cal));
-    cal.add(Calendar.YEAR,1);
-    assertTrue(util.isFuture(cal));
+    assertFalse(util.isFuture(Calendar.getInstance()));
+    assertTrue(util.isFuture(futureDate1));
   }
 
   @Test
   public void util_isPast() {
     String label = "TEST_17.57";
 		System.out.println(label);
+    assertTrue(util.isPast(pastDate1));
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.SECOND,-1);
     assertTrue(util.isPast(cal));
-    cal.add(Calendar.YEAR,1);
-    assertFalse(util.isPast(cal));
+    assertFalse(util.isPast(futureDate1));
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addOneFutureMeetingAndRetrieveWithGetPastMeeting() {
+  public void cm_retrieveFutureMeetingWithGetPastMeetingById() {
     String label = "TEST_17.58";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> set = myCm.getContacts("name");
-    int mtgId = myCm.addFutureMeeting(set, futureDate1);
-    myCm.getPastMeeting(mtgId);
+    testCm.getPastMeeting(testCmMtgId1);
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addOnePastMeetingAndTryToRetrieveWithGetFutureMeetingById() {
+  public void cm_retrievePastMeetingWithGetFutureMeetingById() {
     String label = "TEST_17.585";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> set = myCm.getContacts("name");
-    myCm.addNewPastMeeting(set, pastDate1, notes);
-    Contact c = (Contact) set.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
+    List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
     assertEquals(1, list.size());
-    myCm.getFutureMeeting(list.get(0).getId());
+    testCm.getFutureMeeting(list.get(0).getId());
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addOneFutureMeetingWithPastDate() {
+  public void cm_addFutureMeetingWithPastDate() {
     String label = "TEST_17.59";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> set = myCm.getContacts("name");
-    int mtgId = myCm.addFutureMeeting(set, pastDate1);
+    testCm.addFutureMeeting(testCmSetOfName1, pastDate1);
   }
 
   @Test (expected=IllegalArgumentException.class) 
