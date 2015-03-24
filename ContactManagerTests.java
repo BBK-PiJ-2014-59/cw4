@@ -49,6 +49,7 @@ public class ContactManagerTests {
 
   // myCm is a ContactManager that isn't pre-populated.
   // testCm is a ContactManager that gets pre-populated with a meeting with one contact.
+  // Try to use testCm to avoid repetition.
 
   private ContactManager myCm;
   private Contact testCmContact1;
@@ -339,16 +340,16 @@ public class ContactManagerTests {
   }
 
   @Test (expected=IllegalArgumentException.class) 
-  public void cm_addFutureMeetingWithOneInvalidContact() {
+  public void cm_addFutureMeetingWithInvalidContact() {
     String label = "TEST_17.6";
 		System.out.println(label);
-    Set<Contact> s = new HashSet<Contact>();
-    s.add(badContact);
-    myCm.addFutureMeeting(s, futureDate1);
+    Set<Contact> badSet = new HashSet<Contact>();
+    badSet.add(badContact);
+    testCm.addFutureMeeting(badSet, futureDate1);
   }
 
   @Test
-  public void cm_getFutureMeetingListForContactReturnsOnlyMeeting() {
+  public void cm_getFutureMeetingListByContact() { 
     String label = "TEST_18";
 		System.out.println(label);
     myCm.addNewContact(name1, notes);
@@ -363,19 +364,16 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void cm_getFutureMeetingListForContactReturnsNoMeeting() {
+  public void cm_getFutureMeetingListByContactReturnsNoMeeting() {
     String label = "TEST_19";
 		System.out.println(label);
 
     // Create a meeting with contact "1" but search for contact "2"
 
-    myCm.addNewContact(name1, notes);
-    myCm.addNewContact(name2, notes);
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    myCm.addFutureMeeting(name1Set, futureDate1);
-    Set<Contact> name2Set = myCm.getContacts("name2");
+    testCm.addNewContact("name2", notes);
+    Set<Contact> name2Set = testCm.getContacts("name2");
     Contact contact2 = (Contact) name2Set.toArray()[0];
-    List<Meeting> mtgListContact2 = myCm.getFutureMeetingList(contact2);
+    List<Meeting> mtgListContact2 = testCm.getFutureMeetingList(contact2);
     assertEquals(1, name2Set.size());
     assertEquals(0, mtgListContact2.size());
   }
@@ -385,13 +383,9 @@ public class ContactManagerTests {
   public void cm_getFutureMeetingListByContactReturnsChronologically() {
     String label = "TEST_19.5";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    myCm.addFutureMeeting(nameSet, futureDate2);
-    myCm.addFutureMeeting(nameSet, futureDate1);
-    myCm.addFutureMeeting(nameSet, futureDate3);
-    Contact contact1 = (Contact) nameSet.toArray()[0];
-    List<Meeting> list = myCm.getFutureMeetingList(contact1);
+    testCm.addFutureMeeting(testCmSetOfName1, futureDate3);
+    testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
+    List<Meeting> list = testCm.getFutureMeetingList(testCmContact1);
     assertTrue(list.get(0).getDate().before(list.get(1).getDate()));
     assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
   }
@@ -491,62 +485,51 @@ public class ContactManagerTests {
   public void cm_getFutureMeetingListByDateReturnsEmptyListIfNoMatches() {
     String label = "TEST_19.9";
 		System.out.println(label);
-    assertEquals(0, myCm.getFutureMeetingList(futureDate1).size());
+    assertEquals(0, testCm.getFutureMeetingList(futureDate2).size());
   }
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsEmptyListIfNoMatches() {
     String label = "TEST_19.91";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> name1Set = myCm.getContacts(name1);
-    Contact contact1 = (Contact) name1Set.toArray()[0];
-    assertEquals(0, myCm.getFutureMeetingList(contact1).size());
+    testCm.addNewContact("name2", notes);
+    Contact contact2 = (Contact) testCm.getContacts("name2").toArray()[0];
+    assertEquals(0, testCm.getFutureMeetingList(contact2).size());
   }
 
   @Test
   public void cm_getPastMeetingListByContactReturnsEmptyListIfNoMatches() {
     String label = "TEST_19.92";
 		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> name1Set = myCm.getContacts(name1);
-    Contact contact1 = (Contact) name1Set.toArray()[0];
-    assertEquals(0, myCm.getPastMeetingList(contact1).size());
+    testCm.addNewContact("name2", notes);
+    Contact contact2 = (Contact) testCm.getContacts("name2").toArray()[0];
+    assertEquals(0, testCm.getPastMeetingList(contact2).size());
   }
 
   @Test
-  public void cm_getFutureMeetingListForContactReturnsOneMeeting() {
+  public void cm_getFutureMeetingListForContactReturnsSubset() {
     String label = "TEST_20";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    myCm.addNewContact(name2, notes);
+    testCm.addNewContact("name2", notes);
 
-    // add meeting with contact 1:
+    // add meeting with contact 2 only:
 
-    Set<Contact> nameSet = myCm.getContacts("name");
-    int contact1MtgId = myCm.addFutureMeeting(nameSet, futureDate1);
+    testCm.addFutureMeeting(testCm.getContacts("name2"), futureDate1);
 
-    // add meeting without contact 1:
+    // search for meetings with just contact 1:
 
-    Set<Contact> name2Set = myCm.getContacts("name2");
-    myCm.addFutureMeeting(name2Set, futureDate1);
-
-    // search for meetings with contact 1:
-
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    Contact contact1 = (Contact) name1Set.toArray()[0];
-    List<Meeting> list = myCm.getFutureMeetingList(contact1);
+    List<Meeting> list = testCm.getFutureMeetingList(testCmContact1);
 
     assertEquals(1, list.size());
-    assertEquals(contact1MtgId, list.get(0).getId());
+    assertEquals(testCmMtgId1, list.get(0).getId());
   }
  
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getFutureMeetingListForInvalidContact() {
     String label = "TEST_21";
 		System.out.println(label);
-    myCm.getFutureMeetingList(badContact);
+    testCm.getFutureMeetingList(badContact);
   }
 
   @Test
@@ -554,13 +537,9 @@ public class ContactManagerTests {
     String label = "TEST_22";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    int mtgId = myCm.addFutureMeeting(nameSet, futureDate1);
-
-    List<Meeting> list = myCm.getFutureMeetingList(futureDate1);
+    List<Meeting> list = testCm.getFutureMeetingList(futureDate1);
     assertEquals(1, list.size());
-    assertEquals(mtgId, list.get(0).getId());
+    assertEquals(testCmMtgId1, list.get(0).getId());
   }
 
   @Test
@@ -603,17 +582,13 @@ public class ContactManagerTests {
     String label = "TEST_23";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
+    testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
 
-    myCm.addFutureMeeting(nameSet, futureDate1);
-    myCm.addFutureMeeting(nameSet, futureDate2);
-
-    List<Meeting> listDate1 = myCm.getFutureMeetingList(futureDate1);
+    List<Meeting> listDate1 = testCm.getFutureMeetingList(futureDate1);
     assertEquals(1, listDate1.size());
     assertEquals(futureDate1, listDate1.get(0).getDate());
 
-    List<Meeting> listDate2 = myCm.getFutureMeetingList(futureDate2);
+    List<Meeting> listDate2 = testCm.getFutureMeetingList(futureDate2);
     assertEquals(1, listDate2.size());
     assertEquals(futureDate2, listDate2.get(0).getDate());
 
@@ -633,30 +608,21 @@ public class ContactManagerTests {
     String label = "TEST_24";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-
-    myCm.addFutureMeeting(nameSet, futureDate1);
-    myCm.addFutureMeeting(nameSet, futureDate2);
-
-    List<Meeting> listDate3 = myCm.getFutureMeetingList(futureDate3);
+    testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
+    List<Meeting> listDate3 = testCm.getFutureMeetingList(futureDate3);
     assertEquals(0, listDate3.size());
   }
 
   @Test
-  public void cm_getPastMeetingListForContactReturnsOnlyMeeting() {
+  public void cm_getPastMeetingListByContactReturnsOnlyMeeting() {
     String label = "TEST_25";
 		System.out.println(label);
 
-    myCm.addNewContact(name1, notes);
-    Set<Contact> set = myCm.getContacts("name");
-    Contact c = (Contact) set.toArray()[0];
-    myCm.addNewPastMeeting(set, pastDate1, notes);
-    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
+    List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
     Meeting m = list.get(0);
-    Set<Contact> set2 = m.getContacts();
-    Contact c2 = (Contact) set2.toArray()[0];
-    assertEquals(name1, c2.getName());
+    Contact c = (Contact) m.getContacts().toArray()[0];
+    assertEquals(name1, c.getName());
 
   }
 
@@ -665,19 +631,16 @@ public class ContactManagerTests {
     String label = "TEST_26";
 		System.out.println(label);
 
-    // Create a meeting with contact "1" but search for contact "2"
+    // Created a meeting with contact 1 but searching for contact 2
 
-    myCm.addNewContact(name1, notes);
-    myCm.addNewContact(name2, notes);
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
-    Set<Contact> name2Set = myCm.getContacts("name2");
-    Contact contact2 = (Contact) name2Set.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(contact2);
-    assertEquals(1, name2Set.size());
+    testCm.addNewContact("name2", notes);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
+    Contact contact2 = (Contact) testCm.getContacts("name2").toArray()[0];
+    List<PastMeeting> list = testCm.getPastMeetingList(contact2);
     assertEquals(0, list.size());
   }
 
+// tidy from here...
   @Test
   public void cm_getPastMeetingListForContactReturnsOneOfTwoMeetings() {
     String label = "TEST_27";
