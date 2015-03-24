@@ -129,6 +129,8 @@ public class ContactManagerTests {
 
   }
 
+  // Tests for Contact
+
   @Test
   public void contact_GetName() {
     assertEquals(name1, testContact1.getName());
@@ -139,6 +141,137 @@ public class ContactManagerTests {
     testContact1.addNotes("newNotes");
     assertEquals("newNotes", testContact1.getNotes());
   }
+
+  @Test
+  public void contact_contactsHaveUniqueIdsWithinClass() {
+    assertTrue(testContact1.getId() != testContact2.getId());
+  }
+
+  @Test
+  public void contact_getNotesReturnsEmptyStringIfNoNotes() {
+    Contact c = new ContactImpl("name", "");
+    assertEquals("", c.getNotes()); 
+  }
+
+  // Tests for Meeting
+
+  @Test
+  public void meeting_futureMeetingsHaveUniqueIdsWithinClass() {
+    Set<Contact> sc = new HashSet<Contact>();
+    sc.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
+    Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
+    assertTrue(m1.getId() != m2.getId());
+  }
+
+  @Test
+  public void meeting_pastMeetingsHaveUniqueIdsWithinClass() {
+    Set<Contact> sc = new HashSet<Contact>();
+    sc.add(testContact1);
+    Meeting m1 = new PastMeetingImpl(futureDate1, sc, notes); 
+    Meeting m2 = new PastMeetingImpl(futureDate2, sc, notes); 
+    assertTrue(m1.getId() != m2.getId());
+  }
+
+  @Test
+  public void meeting_getNotesOnPastMeetingWithNoNotesReturnsEmptyString() {
+    Set<Contact> sc = new HashSet<Contact>();
+    sc.add(testContact1);
+    PastMeeting pm = new PastMeetingImpl(pastDate1, sc, "");
+    assertEquals("", pm.getNotes()); 
+  }
+
+  // Tests for ContactManagerUtil
+
+  @Test
+  public void util_areSameDay() {
+    assertFalse(util.areSameDay(pastDate1, futureDate1));
+    Calendar date = (Calendar) pastDate1.clone();
+    assertTrue(util.areSameDay(pastDate1, date));
+  }
+
+  @Test
+  public void util_isFuture() {
+    assertFalse(util.isFuture(Calendar.getInstance()));
+    assertTrue(util.isFuture(futureDate1));
+  }
+
+  @Test
+  public void util_isPast() {
+    assertTrue(util.isPast(pastDate1));
+    Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.SECOND,-1);
+    assertTrue(util.isPast(cal));
+    assertFalse(util.isPast(futureDate1));
+  }
+
+  @Test 
+  public void util_meetingsAreDuplicate() {
+    Set<Contact> set = new HashSet<Contact>();
+    Set<Contact> set2 = new HashSet<Contact>();
+    set.add(testContact1);
+    set.add(testContact2);
+    set2.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
+    assertFalse(util.meetingsAreDuplicate(m1, m2));
+    assertFalse(util.meetingsAreDuplicate(m1, m3));
+  }
+  
+  public void util_dedupeMeetingList() {
+    Set<Contact> set = new HashSet<Contact>();
+    Set<Contact> set2 = new HashSet<Contact>();
+    set.add(testContact1);
+    set.add(testContact2);
+    set2.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
+    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
+    List<Meeting> list = new ArrayList<Meeting>();
+    list.add(m1);
+    list.add(m2);
+    list.add(m3);
+    List<Meeting> dedupedList = new ArrayList<Meeting>();
+    dedupedList.add(m1);
+    dedupedList.add(m3);
+    List<Meeting> newList = util.dedupeMeetingList(list);
+    assertEquals(dedupedList, newList);
+  }
+
+  
+  @Test (expected=IllegalArgumentException.class) 
+  public void util_dedupeMeetingListPassedEmptyList() {
+    util.dedupeMeetingList(new ArrayList<Meeting>());
+  }
+
+  @Test (expected=NullPointerException.class) 
+  public void util_dedupeMeetingListPassedNull() {
+    util.dedupeMeetingList(null);
+  }
+
+  @Test
+  public void util_sortMeetingList() {
+    Set<Contact> set = new HashSet<Contact>();
+    set.add(testContact1);
+    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
+    Meeting m2 = new FutureMeetingImpl(futureDate2, set);
+    List<Meeting> list = new ArrayList<Meeting>();
+    list.add(m2);
+    list.add(m1);
+    util.sortMeetingList(list);
+    assertEquals(m1, list.get(0));
+
+    Meeting m3 = new FutureMeetingImpl(futureDate2, set);
+    List<Meeting> list2 = new ArrayList<Meeting>();
+    list2.add(m2);
+    list2.add(m3);
+    list2.add(m1);
+    util.sortMeetingList(list2);
+    assertEquals(m1, list2.get(0));
+  }
+
+  // Tests for ContactManager
 
   @Test
   public void cm_addOneContactSearchByName() {
@@ -267,20 +400,6 @@ public class ContactManagerTests {
     assertEquals(testCmMtgId1, testCmMtg1.getId());
   }
 
-  @Test
-  public void util_isFuture() {
-    assertFalse(util.isFuture(Calendar.getInstance()));
-    assertTrue(util.isFuture(futureDate1));
-  }
-
-  @Test
-  public void util_isPast() {
-    assertTrue(util.isPast(pastDate1));
-    Calendar cal = Calendar.getInstance();
-    cal.add(Calendar.SECOND,-1);
-    assertTrue(util.isPast(cal));
-    assertFalse(util.isPast(futureDate1));
-  }
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_retrieveFutureMeetingWithGetPastMeetingById() {
@@ -343,71 +462,6 @@ public class ContactManagerTests {
     assertTrue(list.get(1).getDate().before(list.get(2).getDate()));
   }
 
-  @Test 
-  public void util_meetingsAreDuplicate() {
-    Set<Contact> set = new HashSet<Contact>();
-    Set<Contact> set2 = new HashSet<Contact>();
-    set.add(testContact1);
-    set.add(testContact2);
-    set2.add(testContact1);
-    Meeting m1 = new FutureMeetingImpl(futureDate1, set); 
-    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
-    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
-    assertFalse(util.meetingsAreDuplicate(m1, m2));
-    assertFalse(util.meetingsAreDuplicate(m1, m3));
-  }
-  
-  public void util_dedupeMeetingList() {
-    Set<Contact> set = new HashSet<Contact>();
-    Set<Contact> set2 = new HashSet<Contact>();
-    set.add(testContact1);
-    set.add(testContact2);
-    set2.add(testContact1);
-    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
-    Meeting m2 = new FutureMeetingImpl(futureDate1, set); 
-    Meeting m3 = new FutureMeetingImpl(futureDate1, set2); 
-    List<Meeting> list = new ArrayList<Meeting>();
-    list.add(m1);
-    list.add(m2);
-    list.add(m3);
-    List<Meeting> dedupedList = new ArrayList<Meeting>();
-    dedupedList.add(m1);
-    dedupedList.add(m3);
-    List<Meeting> newList = util.dedupeMeetingList(list);
-    assertEquals(dedupedList, newList);
-  }
-
-  
-  @Test (expected=IllegalArgumentException.class) 
-  public void util_dedupeMeetingListPassedEmptyList() {
-    util.dedupeMeetingList(new ArrayList<Meeting>());
-  }
-
-  @Test (expected=NullPointerException.class) 
-  public void util_dedupeMeetingListPassedNull() {
-    util.dedupeMeetingList(null);
-  }
-
-  @Test
-  public void util_sortMeetingList() {
-    Set<Contact> set = new HashSet<Contact>();
-    set.add(testContact1);
-    Meeting m1 = new FutureMeetingImpl(futureDate1, set);
-    Meeting m2 = new FutureMeetingImpl(futureDate2, set);
-    List<Meeting> list = new ArrayList<Meeting>();
-    list.add(m2);
-    list.add(m1);
-    util.sortMeetingList(list);
-    assertEquals(m1, list.get(0));
-
-    Meeting m3 = new FutureMeetingImpl(futureDate2, set);
-    List<Meeting> list2 = new ArrayList<Meeting>();
-    list2.add(m2);
-    list2.add(m3);
-    list2.add(m1);
-    util.sortMeetingList(list2);
-    assertEquals(m1, list2.get(0));
-  }
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
@@ -517,12 +571,6 @@ public class ContactManagerTests {
 
   }
 
-  @Test
-  public void util_areSameDay() {
-    assertFalse(util.areSameDay(pastDate1, futureDate1));
-    Calendar date = (Calendar) pastDate1.clone();
-    assertTrue(util.areSameDay(pastDate1, date));
-  }
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsNoMeetings() {
@@ -721,40 +769,4 @@ public class ContactManagerTests {
     assertTrue(testCmMtgId1 != id2);
   }
 
-  @Test
-  public void meeting_futureMeetingsHaveUniqueIdsWithinClass() {
-    Set<Contact> sc = new HashSet<Contact>();
-    sc.add(testContact1);
-    Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
-    Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
-    assertTrue(m1.getId() != m2.getId());
-  }
-
-  @Test
-  public void meeting_pastMeetingsHaveUniqueIdsWithinClass() {
-    Set<Contact> sc = new HashSet<Contact>();
-    sc.add(testContact1);
-    Meeting m1 = new PastMeetingImpl(futureDate1, sc, notes); 
-    Meeting m2 = new PastMeetingImpl(futureDate2, sc, notes); 
-    assertTrue(m1.getId() != m2.getId());
-  }
-
-  @Test
-  public void contact_contactsHaveUniqueIdsWithinClass() {
-    assertTrue(testContact1.getId() != testContact2.getId());
-  }
-
-  @Test
-  public void contact_getNotesReturnsEmptyStringIfNoNotes() {
-    Contact c = new ContactImpl("name", "");
-    assertEquals("", c.getNotes()); 
-  }
-
-  @Test
-  public void meeting_getNotesOnPastMeetingWithNoNotesReturnsEmptyString() {
-    Set<Contact> sc = new HashSet<Contact>();
-    sc.add(testContact1);
-    PastMeeting pm = new PastMeetingImpl(pastDate1, sc, "");
-    assertEquals("", pm.getNotes()); 
-  }
 }
