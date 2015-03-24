@@ -26,25 +26,12 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
     int month1 = date1.get(Calendar.MONTH);
     int day1 = date1.get(Calendar.DAY_OF_MONTH);
 
-    //System.out.println("year1: " + year1 + " month1: " + month1 + " day1: " + day1); 
-
     int year2 = date2.get(Calendar.YEAR);
     int month2 = date2.get(Calendar.MONTH);
     int day2 = date2.get(Calendar.DAY_OF_MONTH);
 
-    //System.out.println("year2: " + year2 + " month2: " + month2 + " day2: " + day2); 
-
-    
     return (Arrays.deepEquals(new Integer[]{year1,month1,day1}, (new Integer[]{year2,month2,day2})));
   }
-
-/*
-  public boolean meetingsAreDuplicate(Meeting m1, Meeting m2) { 
-    if (m1.getDate().equals(m2.getDate()) && m1.getContacts().equals(m2.getContacts()))
-      return true;
-    else return false;
-  }
-*/
 
   public boolean meetingsAreDuplicate(Meeting m1, Meeting m2) { 
     return m1 == m2;
@@ -75,12 +62,7 @@ public class ContactManagerUtilImpl implements ContactManagerUtil, Serializable 
     Collections.sort(list, new Comparator<Meeting>() { 
       @Override
       public int compare(Meeting mtg1, Meeting mtg2) { 
-        //return 0;
-        System.out.println("comparing " + mtg1 + " and " + mtg2);
-        System.out.println(mtg1 + " " + mtg1.getDate());
-        System.out.println(mtg2 + " " + mtg2.getDate());
         int result = mtg1.getDate().compareTo(mtg2.getDate());
-        System.out.println("result: " + result);
         return result;
       }
     });

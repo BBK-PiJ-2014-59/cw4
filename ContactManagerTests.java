@@ -131,37 +131,27 @@ public class ContactManagerTests {
 
   @Test
   public void contact_GetName() {
-    String label = "TEST_2";
-		System.out.println(label);
     assertEquals(name1, testContact1.getName());
   }
 
   @Test
   public void contact_GetNotes() {
-    String label = "TEST_3";
-		System.out.println(label);
     testContact1.addNotes("newNotes");
     assertEquals("newNotes", testContact1.getNotes());
   }
 
   @Test
   public void cm_addOneContactSearchByName() {
-    String label = "TEST_4";
-		System.out.println(label);
     assertEquals(name1, testCmContact1.getName()); 
   }
   
   @Test
   public void cm_getContactByNameNotFound() {
-    String label = "TEST_4.1";
-		System.out.println(label);
     assertTrue(testCm.getContacts(name2).isEmpty());
   }
 
   @Test
   public void cm_getContactsByPartOfName() {
-    String label = "TEST_4.2";
-		System.out.println(label);
     testCm.addNewContact("abcd", notes); 
     testCm.addNewContact("abcde", notes); 
     assertEquals(2, testCm.getContacts("abcd").size()); 
@@ -169,22 +159,16 @@ public class ContactManagerTests {
 
   @Test (expected=NullPointerException.class)
   public void cm_addNewContactWithNullName() {
-    String label = "TEST_5";
-		System.out.println(label);
     testCm.addNewContact(null, notes); 
   }
 
   @Test (expected=NullPointerException.class)
   public void cm_addNewContactWithNullNotes() {
-    String label = "TEST_6";
-		System.out.println(label);
     testCm.addNewContact(name1, null); 
   }
 
   @Test
   public void cm_sameContactsAfterFlushAndNextContactIdIsIncremented() {
-    String label = "TEST_7";
-		System.out.println(label);
     ContactManagerTests.deleteFile(textfile);
 
     myCm.addNewContact("name1", notes); 
@@ -215,8 +199,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getContactsById() {
-    String label = "TEST_16";
-		System.out.println(label);
 
     // One ID:
 
@@ -244,16 +226,12 @@ public class ContactManagerTests {
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getContactsByIdUsingBadId() {
-    String label = "TEST_17";
-		System.out.println(label);
 
     testCm.getContacts(firstContactId,badContactId);
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_getContactsByNameUsingNull() {
-    String label = "TEST_17.4";
-		System.out.println(label);
 
     String n = null;
     testCm.getContacts(n);
@@ -261,8 +239,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_addFutureMeetingCreatesMeetingsWithUniqueIds() {
-    String label = "TEST_17.5";
-		System.out.println(label);
 
     int mtgId2 = testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
     Meeting mtg2 = testCm.getMeeting(mtgId2);
@@ -272,8 +248,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getMeetingByNameUsingPartialName() {
-    String label = "TEST_17.51";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
     myCm.addNewContact(name3, notes);
@@ -281,7 +255,6 @@ public class ContactManagerTests {
     Set<Contact> set1 = myCm.getContacts("name");
     int expectedMatches = 3;
     int mtgId = myCm.addFutureMeeting(set1, futureDate1);
-    System.out.println("mtgId: " + mtgId);
     Meeting myMtg = myCm.getMeeting(mtgId);
     Set<Contact> set2 = myMtg.getContacts();
     assertEquals(expectedMatches, set1.size());
@@ -291,23 +264,17 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingById() {
-    String label = "TEST_17.55";
-		System.out.println(label);
     assertEquals(testCmMtgId1, testCmMtg1.getId());
   }
 
   @Test
   public void util_isFuture() {
-    String label = "TEST_17.56";
-		System.out.println(label);
     assertFalse(util.isFuture(Calendar.getInstance()));
     assertTrue(util.isFuture(futureDate1));
   }
 
   @Test
   public void util_isPast() {
-    String label = "TEST_17.57";
-		System.out.println(label);
     assertTrue(util.isPast(pastDate1));
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.SECOND,-1);
@@ -317,15 +284,11 @@ public class ContactManagerTests {
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_retrieveFutureMeetingWithGetPastMeetingById() {
-    String label = "TEST_17.58";
-		System.out.println(label);
     testCm.getPastMeeting(testCmMtgId1);
   }
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_retrievePastMeetingWithGetFutureMeetingById() {
-    String label = "TEST_17.585";
-		System.out.println(label);
     testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
     List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
     assertEquals(1, list.size());
@@ -334,15 +297,11 @@ public class ContactManagerTests {
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addFutureMeetingWithPastDate() {
-    String label = "TEST_17.59";
-		System.out.println(label);
     testCm.addFutureMeeting(testCmSetOfName1, pastDate1);
   }
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addFutureMeetingWithInvalidContact() {
-    String label = "TEST_17.6";
-		System.out.println(label);
     Set<Contact> badSet = new HashSet<Contact>();
     badSet.add(badContact);
     testCm.addFutureMeeting(badSet, futureDate1);
@@ -350,8 +309,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByContact() { 
-    String label = "TEST_18";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> set = myCm.getContacts("name");
     Contact c = (Contact) set.toArray()[0];
@@ -365,8 +322,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsNoMeeting() {
-    String label = "TEST_19";
-		System.out.println(label);
 
     // Create a meeting with contact "1" but search for contact "2"
 
@@ -381,8 +336,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsChronologically() {
-    String label = "TEST_19.5";
-		System.out.println(label);
     testCm.addFutureMeeting(testCmSetOfName1, futureDate3);
     testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
     List<Meeting> list = testCm.getFutureMeetingList(testCmContact1);
@@ -392,8 +345,6 @@ public class ContactManagerTests {
 
   @Test 
   public void util_meetingsAreDuplicate() {
-    String label = "TEST_19.55";
-		System.out.println(label);
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
     set.add(testContact1);
@@ -407,8 +358,6 @@ public class ContactManagerTests {
   }
   
   public void util_dedupeMeetingList() {
-    String label = "TEST_19.55";
-		System.out.println(label);
     Set<Contact> set = new HashSet<Contact>();
     Set<Contact> set2 = new HashSet<Contact>();
     set.add(testContact1);
@@ -431,22 +380,16 @@ public class ContactManagerTests {
   
   @Test (expected=IllegalArgumentException.class) 
   public void util_dedupeMeetingListPassedEmptyList() {
-    String label = "TEST_19.6";
-		System.out.println(label);
     util.dedupeMeetingList(new ArrayList<Meeting>());
   }
 
   @Test (expected=NullPointerException.class) 
   public void util_dedupeMeetingListPassedNull() {
-    String label = "TEST_19.7";
-		System.out.println(label);
     util.dedupeMeetingList(null);
   }
 
   @Test
   public void util_sortMeetingList() {
-    String label = "TEST_19.75";
-		System.out.println(label);
     Set<Contact> set = new HashSet<Contact>();
     set.add(testContact1);
     Meeting m1 = new FutureMeetingImpl(futureDate1, set);
@@ -468,8 +411,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsNoDuplicates() {
-    String label = "TEST_19.8";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
     Set<Contact> nameSet = myCm.getContacts("name");
@@ -483,15 +424,11 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsEmptyListIfNoMatches() {
-    String label = "TEST_19.9";
-		System.out.println(label);
     assertEquals(0, testCm.getFutureMeetingList(futureDate2).size());
   }
 
   @Test
   public void cm_getFutureMeetingListByContactReturnsEmptyListIfNoMatches() {
-    String label = "TEST_19.91";
-		System.out.println(label);
     testCm.addNewContact("name2", notes);
     Contact contact2 = (Contact) testCm.getContacts("name2").toArray()[0];
     assertEquals(0, testCm.getFutureMeetingList(contact2).size());
@@ -499,8 +436,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getPastMeetingListByContactReturnsEmptyListIfNoMatches() {
-    String label = "TEST_19.92";
-		System.out.println(label);
     testCm.addNewContact("name2", notes);
     Contact contact2 = (Contact) testCm.getContacts("name2").toArray()[0];
     assertEquals(0, testCm.getPastMeetingList(contact2).size());
@@ -508,8 +443,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListForContactReturnsSubset() {
-    String label = "TEST_20";
-		System.out.println(label);
 
     testCm.addNewContact("name2", notes);
 
@@ -527,15 +460,11 @@ public class ContactManagerTests {
  
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getFutureMeetingListForInvalidContact() {
-    String label = "TEST_21";
-		System.out.println(label);
     testCm.getFutureMeetingList(badContact);
   }
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsOnlyMeeting() {
-    String label = "TEST_22";
-		System.out.println(label);
 
     List<Meeting> list = testCm.getFutureMeetingList(futureDate1);
     assertEquals(1, list.size());
@@ -544,8 +473,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsChronologically() {
-    String label = "TEST_22.5";
-		System.out.println(label);
 
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
@@ -564,8 +491,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsNoDuplicates() {
-    String label = "TEST_22.7";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
     Set<Contact> nameSet = myCm.getContacts("name");
@@ -579,8 +504,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsOneOfTwoMeetings() {
-    String label = "TEST_23";
-		System.out.println(label);
 
     testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
 
@@ -596,8 +519,6 @@ public class ContactManagerTests {
 
   @Test
   public void util_areSameDay() {
-    String label = "TEST_23.5";
-		System.out.println(label);
     assertFalse(util.areSameDay(pastDate1, futureDate1));
     Calendar date = (Calendar) pastDate1.clone();
     assertTrue(util.areSameDay(pastDate1, date));
@@ -605,8 +526,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingListByDateReturnsNoMeetings() {
-    String label = "TEST_24";
-		System.out.println(label);
 
     testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
     List<Meeting> listDate3 = testCm.getFutureMeetingList(futureDate3);
@@ -615,8 +534,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getPastMeetingListByContactReturnsOnlyMeeting() {
-    String label = "TEST_25";
-		System.out.println(label);
 
     testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
     List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
@@ -628,8 +545,6 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getPastMeetingListForContactReturnsNoMeeting() {
-    String label = "TEST_26";
-		System.out.println(label);
 
     // Created a meeting with contact 1 but searching for contact 2
 
@@ -643,8 +558,6 @@ public class ContactManagerTests {
 // tidy from here...
   @Test
   public void cm_getPastMeetingListForContactReturnsOneOfTwoMeetings() {
-    String label = "TEST_27";
-		System.out.println(label);
 
     myCm.addNewContact("name1", notes);
     myCm.addNewContact("name2", notes);
@@ -676,15 +589,11 @@ public class ContactManagerTests {
  
   @Test (expected=IllegalArgumentException.class) 
   public void cm_getPastMeetingListForInvalidContact() {
-    String label = "TEST_28";
-		System.out.println(label);
-    myCm.getPastMeetingList(badContact);
+    testCm.getPastMeetingList(badContact);
   }
 
   @Test
   public void cm_getPastMeetingListByContactReturnsNoDuplicates() {
-    String label = "TEST_28.3";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     myCm.addNewContact(name2, notes);
     Set<Contact> nameSet = myCm.getContacts("name");
@@ -698,29 +607,21 @@ public class ContactManagerTests {
 
   @Test
   public void cm_getFutureMeetingForNonexistentIdReturnsNull() {
-    String label = "TEST_28.4";
-		System.out.println(label);
-    assertNull(myCm.getFutureMeeting(badContactId));
+    assertNull(testCm.getFutureMeeting(badContactId));
   }
 
   @Test
   public void cm_getPastMeetingForNonexistentIdReturnsNull() {
-    String label = "TEST_28.5";
-		System.out.println(label);
-    assertNull(myCm.getPastMeeting(badContactId));
+    assertNull(testCm.getPastMeeting(badContactId));
   }
 
   @Test
   public void cm_getMeetingForNonexistentIdReturnsNull() {
-    String label = "TEST_28.6";
-		System.out.println(label);
-    assertNull(myCm.getMeeting(badContactId));
+    assertNull(testCm.getMeeting(badContactId));
   }
 
   @Test
   public void cm_getPastMeetingListByContactReturnsChronologically() {
-    String label = "TEST_28.7";
-		System.out.println(label);
     myCm.addNewContact(name1, notes);
     Set<Contact> nameSet = myCm.getContacts("name");
     myCm.addNewPastMeeting(nameSet, pastDate2, notes);
@@ -734,156 +635,103 @@ public class ContactManagerTests {
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addNewPastMeetingNoContacts() {
-    String label = "TEST_29";
-		System.out.println(label);
     Set<Contact> emptySet = new HashSet<Contact>();
-    myCm.addNewPastMeeting(emptySet, pastDate1, notes); 
+    testCm.addNewPastMeeting(emptySet, pastDate1, notes); 
   }
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addNewPastMeetingInvalidContact() {
-    String label = "TEST_29.5";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
     Set<Contact> badSet = new HashSet<Contact>();
-    badSet.addAll(myCm.getContacts("name"));
+    badSet.addAll(testCm.getContacts("name"));
     badSet.add(badContact);
-    myCm.addNewPastMeeting(badSet, pastDate1, notes); 
+    testCm.addNewPastMeeting(badSet, pastDate1, notes); 
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_addNewPastMeetingNullContacts() {
-    String label = "TEST_30";
-		System.out.println(label);
-    myCm.addNewPastMeeting(null, pastDate1, notes);
+    testCm.addNewPastMeeting(null, pastDate1, notes);
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_addNewPastMeetingNullDate() {
-    String label = "TEST_30.1";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    myCm.addNewPastMeeting(nameSet, null, notes);
+    testCm.addNewPastMeeting(testCmSetOfName1, null, notes);
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_addNewPastMeetingNullNotes() {
-    String label = "TEST_30.2";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    myCm.addNewPastMeeting(nameSet, pastDate1, null);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, null);
   }
 
   @Test
   public void cm_addNewPastMeetingAddsPastMeeting() {
-    String label = "TEST_31";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    myCm.addNewPastMeeting(name1Set, pastDate1, label);
-    Contact c = (Contact) name1Set.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, "notesxyz");
+    List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
     PastMeeting pm = list.get(0); 
     assertEquals(pastDate1, pm.getDate());
-    assertEquals(label, pm.getNotes());
-    assertEquals(name1Set, pm.getContacts());
+    assertEquals("notesxyz", pm.getNotes());
+    assertEquals(testCmSetOfName1, pm.getContacts());
   }
 
   @Test
   public void cm_addMeetingNotesToPastMeetingOverwritesExistingNotes() {
-    String label = "TEST_32";
-		System.out.println(label);
-    myCm.addNewContact("name1", notes);
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
     String notes2 = "notes2";
-    Contact c = (Contact) name1Set.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(c);
+    List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1);
     PastMeeting pm = list.get(0);
     int id = pm.getId();
-    myCm.addMeetingNotes(id, notes2);
-    assertEquals(notes2, myCm.getPastMeeting(id).getNotes());
+    testCm.addMeetingNotes(id, notes2);
+    assertEquals(notes2, testCm.getPastMeeting(id).getNotes());
   }
 
   @Test (expected=IllegalArgumentException.class) 
   public void cm_addMeetingNotesToNonexistentMeeting() {
-    String label = "TEST_33";
-		System.out.println(label);
-    myCm.addMeetingNotes(badMtgId, notes);
+    testCm.addMeetingNotes(badMtgId, notes);
   }
 
   @Test (expected=IllegalStateException.class) 
   public void cm_addMeetingNotesToFutureMeetingThatHasNotHappenedYet() {
-    String label = "TEST_34";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
-    int mtgId = myCm.addFutureMeeting(nameSet, futureDate1);
-    myCm.addMeetingNotes(mtgId, notes);
+    testCm.addMeetingNotes(testCmMtgId1, notes);
   }
 
   @Test
   public void cm_addMeetingNotesToPastFutureMeeting() {
-    String label = "TEST_34.5";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> nameSet = myCm.getContacts("name");
     Calendar soon = Calendar.getInstance();
     soon.add(Calendar.SECOND, 1);
-    int mtgId = myCm.addFutureMeeting(nameSet, soon);
+    int mtgId = testCm.addFutureMeeting(testCmSetOfName1, soon);
     try {
       Thread.sleep(2000);
     } catch(InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-    myCm.addMeetingNotes(mtgId, notes);
-    assertEquals(notes, myCm.getPastMeeting(mtgId).getNotes());
+    testCm.addMeetingNotes(mtgId, notes);
+    assertEquals(notes, testCm.getPastMeeting(mtgId).getNotes());
   }
 
   @Test (expected=NullPointerException.class) 
   public void cm_addMeetingNotesWithNullNotes() {
-    String label = "TEST_35";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> name1Set = myCm.getContacts("name1");
-    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
-    Contact c = (Contact) name1Set.toArray()[0];
-    List<PastMeeting> list = myCm.getPastMeetingList(c); 
-    myCm.addNewPastMeeting(name1Set, pastDate1, notes);
-    myCm.addMeetingNotes(list.get(0).getId(), null);
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
+    List<PastMeeting> list = testCm.getPastMeetingList(testCmContact1); 
+    testCm.addNewPastMeeting(testCmSetOfName1, pastDate1, notes);
+    testCm.addMeetingNotes(list.get(0).getId(), null);
   }
 
   @Test
-  public void meetingsHaveUniqueIdsWithinContactManager() {
-    String label = "TEST_36";
-		System.out.println(label);
-    myCm.addNewContact(name1, notes);
-    Set<Contact> name1Set = myCm.getContacts(name1);
-    Contact contact1 = (Contact) name1Set.toArray()[0];
-    int id1 = myCm.addFutureMeeting(name1Set, futureDate1);
-    int id2 = myCm.addFutureMeeting(name1Set, futureDate2);
-    assertTrue(id1 != id2);
+  public void cm_meetingsHaveUniqueIdsWithinContactManager() {
+    int id2 = testCm.addFutureMeeting(testCmSetOfName1, futureDate2);
+    assertTrue(testCmMtgId1 != id2);
   }
 
   @Test
-  public void futureMeetingsHaveUniqueIdsWithinClass() {
-    String label = "TEST_37";
-		System.out.println(label);
+  public void meeting_futureMeetingsHaveUniqueIdsWithinClass() {
     Set<Contact> sc = new HashSet<Contact>();
     sc.add(testContact1);
     Meeting m1 = new FutureMeetingImpl(futureDate1, sc); 
     Meeting m2 = new FutureMeetingImpl(futureDate2, sc); 
-    System.out.println("m1.getId(): " + m1.getId());
-    System.out.println("m2.getId(): " + m2.getId());
     assertTrue(m1.getId() != m2.getId());
   }
 
   @Test
-  public void pastMeetingsHaveUniqueIdsWithinClass() {
-    String label = "TEST_37.5";
-		System.out.println(label);
+  public void meeting_pastMeetingsHaveUniqueIdsWithinClass() {
     Set<Contact> sc = new HashSet<Contact>();
     sc.add(testContact1);
     Meeting m1 = new PastMeetingImpl(futureDate1, sc, notes); 
@@ -892,24 +740,18 @@ public class ContactManagerTests {
   }
 
   @Test
-  public void contactsHaveUniqueIdsWithinContact() {
-    String label = "TEST_38";
-		System.out.println(label);
+  public void contact_contactsHaveUniqueIdsWithinClass() {
     assertTrue(testContact1.getId() != testContact2.getId());
   }
 
   @Test
-  public void getNotesOnContactWithNoNotesReturnsEmptyString() {
-    String label = "TEST_39";
-		System.out.println(label);
+  public void contact_getNotesReturnsEmptyStringIfNoNotes() {
     Contact c = new ContactImpl("name", "");
     assertEquals("", c.getNotes()); 
   }
 
   @Test
-  public void getNotesOnPastMeetingWithNoNotesReturnsEmptyString() {
-    String label = "TEST_40";
-		System.out.println(label);
+  public void meeting_getNotesOnPastMeetingWithNoNotesReturnsEmptyString() {
     Set<Contact> sc = new HashSet<Contact>();
     sc.add(testContact1);
     PastMeeting pm = new PastMeetingImpl(pastDate1, sc, "");
